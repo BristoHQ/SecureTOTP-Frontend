@@ -906,8 +906,10 @@
     </div>
     <div class="actions">
       <a href="add-account.html" class="nav-btn"><i class="fas fa-plus"></i> Add Account</a>
-      <a href="pin-setting.html" class="nav-btn secondary" id="settingsBtn"><i class="fas fa-cog"></i> Pin Settings</a>
-       <button id="logout-btn" class="btn-delete">Logout</button>
+      <a href="user/profile.html" class="nav-btn secondary"><i class="fas fa-user"></i> Profile</a>
+      <a href="user/pin-setting.html" class="nav-btn secondary" id="settingsBtn"><i class="fas fa-cog"></i> Pin Settings</a>
+      <a href="ELP/ELP-setup.html" class="nav-btn secondary"><i class="fas fa-shield-alt"></i> Emergency Login</a>
+      <button id="logout-btn" class="btn-delete">Logout</button>
     </div>
   </div>
 
@@ -1323,9 +1325,9 @@ function setButtonLoading(button, isLoading) {
       }
     }
       // Logout functionality
-      document.getElementById('logout-btn').addEventListener('click', () => {
+      document.getElementById('logout-btn').addEventListener('click', function() {
         localStorage.removeItem('authToken');
-        window.location.href = '/login.html';
+        window.location.href = 'auth/login.html';
       });
 
     window.onload = function () {

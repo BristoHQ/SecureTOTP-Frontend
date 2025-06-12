@@ -472,8 +472,8 @@
         <h1>2FA Authenticator</h1>
         <div class="actions">
             <a href="dashboard.html" class="nav-btn">Go to Dashboard</a>
-            <a href="add-account.html" class="nav-btn secondary"><i class="fas fa-plus"></i> Profile</a>
-            <a href="pin-setting.html" class="nav-btn secondary" id="settingsBtn"><i class="fas fa-cog"></i> Pin Settings</a>
+            <a href="user/profile.html" class="nav-btn secondary"><i class="fas fa-user"></i> Profile</a>
+            <a href="user/pin-setting.html" class="nav-btn secondary" id="settingsBtn"><i class="fas fa-cog"></i> Pin Settings</a>
             <button id="logout-btn" class="btn-delete">Logout</button>
         </div>
     </div>
@@ -674,7 +674,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Logout functionality
       document.getElementById('logout-btn').addEventListener('click', () => {
         localStorage.removeItem('authToken');
-        window.location.href = '/login.html';
+        window.location.href = 'auth/login.html';
       });
 
     form.addEventListener('submit', async (e) => {
@@ -687,7 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const token = localStorage.getItem('authToken');
         if (!token) {
             alert('Token missing. Please log in.');
-            window.location.href = 'login.html';
+            window.location.href = 'auth/login.html';
             return;
         }
 
@@ -784,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setButtonLoading(logoutBtn, true);
         setTimeout(() => {
             localStorage.removeItem('authToken');
-            window.location.href = '/login.html';
+            window.location.href = 'auth/login.html';
         }, 500); // Small delay to show animation
     });
 });

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -62,18 +63,36 @@
             animation: keyframes-blink 0.6s alternate infinite linear;
         }
 
-        .loader span:nth-child(1) { animation-delay: 0ms; }
-        .loader span:nth-child(2) { animation-delay: 60ms; }
-        .loader span:nth-child(3) { animation-delay: 120ms; }
-        .loader span:nth-child(4) { animation-delay: 180ms; }
-        .loader span:nth-child(5) { animation-delay: 120ms; }
-        .loader span:nth-child(6) { animation-delay: 60ms; }
+        .loader span:nth-child(1) {
+            animation-delay: 0ms;
+        }
+
+        .loader span:nth-child(2) {
+            animation-delay: 60ms;
+        }
+
+        .loader span:nth-child(3) {
+            animation-delay: 120ms;
+        }
+
+        .loader span:nth-child(4) {
+            animation-delay: 180ms;
+        }
+
+        .loader span:nth-child(5) {
+            animation-delay: 120ms;
+        }
+
+        .loader span:nth-child(6) {
+            animation-delay: 60ms;
+        }
 
         @keyframes keyframes-blink {
             0% {
                 opacity: 0.3;
                 transform: scale(0.5) rotate(5deg);
             }
+
             50% {
                 opacity: 1;
                 transform: scale(1);
@@ -90,8 +109,13 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0.5; }
-            to { opacity: 1; }
+            from {
+                opacity: 0.5;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         .main-content {
@@ -253,7 +277,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .back-to-login {
@@ -331,6 +357,7 @@
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <div class="loader-container">
         <div class="loader">
@@ -353,7 +380,7 @@
                     <p>1. Upload your ELP file by clicking the area below or dragging the file</p>
                     <p>2. Click "Login with ELP" to authenticate</p>
                 </div>
-                
+
                 <label class="file-upload-container" id="fileUploadContainer">
                     <i class="fas fa-file-upload"></i>
                     <span class="file-upload-text">Click or drag ELP file here</span>
@@ -361,11 +388,11 @@
                     <span class="file-name" id="fileName"></span>
                     <input type="file" id="fileInput" accept=".elp">
                 </label>
-                
+
                 <button id="loginBtn" class="button-submit" disabled>Login with ELP</button>
                 <div class="message" id="message"></div>
-                
-                <a href="login.html" class="back-to-login">Back to normal login</a>
+
+                <a href="../auth/login.html" class="back-to-login">Back to normal login</a>
             </div>
         </div>
     </div>
@@ -399,7 +426,7 @@
                     loginBtn.disabled = true;
                     return;
                 }
-                
+
                 fileName.textContent = file.name;
                 fileName.style.display = 'block';
                 loginBtn.disabled = false;
@@ -432,7 +459,7 @@
                     loginBtn.disabled = true;
                     return;
                 }
-                
+
                 fileInput.files = e.dataTransfer.files;
                 fileName.textContent = file.name;
                 fileName.style.display = 'block';
@@ -456,11 +483,11 @@
 
             try {
                 const file = fileInput.files[0];
-                
+
                 // Create a FormData object to send the file
                 const formData = new FormData();
                 formData.append('file', file);
-                
+
                 const response = await fetch('http://localhost:8080/api/v1/elp/login', {
                     method: 'POST',
                     body: formData
@@ -472,17 +499,17 @@
                     // Authentication successful
                     messageDiv.style.color = 'green';
                     messageDiv.textContent = data.message || 'Authentication successful! Redirecting...';
-                    
+
                     // Save the JWT token to localStorage
                     if (data.token) {
                         localStorage.setItem('authToken', data.token);
                         console.log('Token saved successfully');
-                        
+
                         // Also save username if provided
                         if (data.username) {
                             localStorage.setItem('username', data.username);
                         }
-                        
+
                         // And user ID if provided
                         if (data.userId) {
                             localStorage.setItem('userId', data.userId);
@@ -490,20 +517,20 @@
                     } else {
                         console.warn('No token received in the response');
                     }
-                    
+
                     // Success animation
                     loginBtn.textContent = 'Success!';
                     loginBtn.style.backgroundColor = '#10b981';
-                    
+
                     // Redirect after a short delay
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
+                        window.location.href = '../dashboard.html';
                     }, 1500);
                 } else if (response.status === 206) {
                     // Partial success - ELP valid but user not found
                     messageDiv.style.color = '#f59e0b'; // warning color
                     messageDiv.textContent = data.message || 'ELP valid but additional info needed';
-                    
+
                     // Maybe redirect to a different page to gather more info
                     setTimeout(() => {
                         window.location.href = 'complete-profile.html?userId=' + encodeURIComponent(data.userId || '');
@@ -523,4 +550,5 @@
         });
     </script>
 </body>
+
 </html>

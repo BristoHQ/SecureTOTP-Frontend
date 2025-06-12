@@ -139,18 +139,36 @@
             animation: keyframes-blink 0.6s alternate infinite linear;
         }
 
-        .loader span:nth-child(1) { animation-delay: 0ms; }
-        .loader span:nth-child(2) { animation-delay: 60ms; }
-        .loader span:nth-child(3) { animation-delay: 120ms; }
-        .loader span:nth-child(4) { animation-delay: 180ms; }
-        .loader span:nth-child(5) { animation-delay: 120ms; }
-        .loader span:nth-child(6) { animation-delay: 60ms; }
+        .loader span:nth-child(1) {
+            animation-delay: 0ms;
+        }
+
+        .loader span:nth-child(2) {
+            animation-delay: 60ms;
+        }
+
+        .loader span:nth-child(3) {
+            animation-delay: 120ms;
+        }
+
+        .loader span:nth-child(4) {
+            animation-delay: 180ms;
+        }
+
+        .loader span:nth-child(5) {
+            animation-delay: 120ms;
+        }
+
+        .loader span:nth-child(6) {
+            animation-delay: 60ms;
+        }
 
         @keyframes keyframes-blink {
             0% {
                 opacity: 0.3;
                 transform: scale(0.5) rotate(5deg);
             }
+
             50% {
                 opacity: 1;
                 transform: scale(1);
@@ -167,8 +185,13 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0.5; }
-            to { opacity: 1; }
+            from {
+                opacity: 0.5;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         .main-content {
@@ -359,7 +382,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         @media (max-width: 768px) {
@@ -451,9 +476,10 @@
             <span>SecureTOTP</span>
         </div>
         <div class="actions">
-            <a href="dashboard.html" class="nav-btn"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-            <a href="add-account.html" class="nav-btn secondary"><i class="fas fa-plus"></i> Add Account</a>
-            <a href="pin-setting.html" class="nav-btn secondary" id="settingsBtn"><i class="fas fa-cog"></i> Pin Settings</a>
+            <a href="../dashboard.html" class="nav-btn"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="../add-account.html" class="nav-btn secondary"><i class="fas fa-plus"></i> Add Account</a>
+            <a href="../user/pin-setting.html" class="nav-btn secondary" id="settingsBtn"><i class="fas fa-cog"></i> Pin
+                Settings</a>
             <button id="logout-btn" class="btn-delete">Logout</button>
         </div>
     </div>
@@ -475,13 +501,15 @@
             <h2>Emergency Login Protocol</h2>
             <div class="form">
                 <div class="instructions">
-                    <p>The Emergency Login Protocol (ELP) is a secure backup method that allows you to regain access to your account in case you lose your device or cannot access your authenticator app.</p>
+                    <p>The Emergency Login Protocol (ELP) is a secure backup method that allows you to regain access to
+                        your account in case you lose your device or cannot access your authenticator app.</p>
                     <div class="warning-box">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Important:</strong> Keep your ELP file in a secure location. Anyone with access to this file can potentially log into your account.
+                        <strong>Important:</strong> Keep your ELP file in a secure location. Anyone with access to this
+                        file can potentially log into your account.
                     </div>
                 </div>
-                
+
                 <!-- User Profile Information Section -->
                 <div class="profile-info">
                     <div class="title">
@@ -506,9 +534,10 @@
                 <!-- Agreement Checkbox -->
                 <div class="checkbox-container">
                     <input type="checkbox" id="agree">
-                    <label for="agree">I understand that this file grants emergency access to my account and I will store it securely. I accept full responsibility for keeping this file safe.</label>
+                    <label for="agree">I understand that this file grants emergency access to my account and I will
+                        store it securely. I accept full responsibility for keeping this file safe.</label>
                 </div>
-                
+
                 <button id="generateBtn" class="button-submit" disabled>Generate ELP File</button>
                 <div class="message" id="message"></div>
             </div>
@@ -533,12 +562,19 @@
         const profileName = document.getElementById('profile-name');
         const profileEmail = document.getElementById('profile-email');
         const profileUserId = document.getElementById('profile-userid');
-        
-        // Token validation
+
+        // Check authentication 
         const token = localStorage.getItem('authToken');
         if (!token) {
-            window.location.href = 'login.html';
+            window.location.href = '../auth/login.html';
+            return;
         }
+
+        // Logout functionality
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('authToken');
+            window.location.href = '../auth/login.html';
+        });
 
         // Handle agreement checkbox
         agreeCheckbox.addEventListener('change', () => {
@@ -555,18 +591,18 @@
                         'Content-Type': 'application/json'
                     }
                 });
-                
+
                 if (!response.ok) {
                     throw new Error('Failed to fetch user profile');
                 }
-                
+
                 const userData = await response.json();
-                
+
                 // Display profile information
                 profileName.textContent = userData.fullName || userData.username || 'Not Available';
                 profileEmail.textContent = userData.email || 'Not Available';
                 profileUserId.textContent = userData.id || userData.userId || 'Generated Automatically';
-                
+
                 // Store user data for ELP generation
                 window.userData = userData;
             } catch (error) {
@@ -575,7 +611,7 @@
                 messageDiv.classList.add('error');
             }
         }
-        
+
         // Load user profile when page loads
         loadUserProfile();
 
@@ -586,7 +622,7 @@
                 messageDiv.classList.add('error');
                 return;
             }
-            
+
             generateBtn.disabled = true;
             generateBtn.classList.add('btn-loading');
             messageDiv.textContent = '';
@@ -608,25 +644,25 @@
 
                 // Parse the response data that contains fileContent and filename
                 const data = await response.json();
-                
+
                 // Extract the fileContent and filename from the response
                 const { fileContent, filename } = data;
-                
+
                 // Decode base64 fileContent to binary
                 const binaryString = window.atob(fileContent);
                 const bytes = new Uint8Array(binaryString.length);
                 for (let i = 0; i < binaryString.length; i++) {
                     bytes[i] = binaryString.charCodeAt(i);
                 }
-                
+
                 // Create a blob from the binary data
                 const blob = new Blob([bytes], { type: 'application/octet-stream' });
-                
+
                 // Create download link
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = filename || 'emergency_login_protocol.elp';
+                a.download = filename;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -645,12 +681,6 @@
                 generateBtn.textContent = 'Generate ELP File';
                 generateBtn.disabled = !agreeCheckbox.checked;
             }
-        });
-
-        // Logout functionality
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            localStorage.removeItem('authToken');
-            window.location.href = 'login.html';
         });
     </script>
 </body>

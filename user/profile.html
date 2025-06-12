@@ -446,7 +446,7 @@
     </div>
         <div class="header-actions">
           <a href="edit-profile.html" class="btn secondary">Edit Profile</a>
-          <a href="dashboard.html" class="btn secondary">Dashboard</a>
+          <a href="../dashboard.html" class="btn secondary">Dashboard</a>
           <button id="logout-btn" class="btn danger">Logout</button>
         </div>
       </div>
@@ -469,7 +469,7 @@
       const token = localStorage.getItem('authToken');
       
       if (!token) {
-        window.location.href = 'login.html';
+        window.location.href = '../auth/login.html';
         return;
       }
       
@@ -612,7 +612,7 @@
         setTimeout(() => {
           localStorage.removeItem('authToken');
           localStorage.removeItem('userData');
-          window.location.href = 'login.html';
+          window.location.href = '../auth/login.html';
         }, 500);
       });
     });

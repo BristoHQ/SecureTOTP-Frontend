@@ -401,6 +401,24 @@
         font-size: 0.8rem;
       }
     }
+
+    /* Update navigation links */
+    .form-footer {
+      margin-top: 15px;
+      font-size: 0.85rem;
+      color: #d6d6d6;
+    }
+
+    .form-footer a {
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .form-footer a:hover {
+      color: #2563eb;
+    }
   </style>
 </head>
 <body>
@@ -488,6 +506,10 @@
         </div>
       </form>
 
+      <div class="form-footer">
+        Already have an account? <a href="login.html">Login</a>
+      </div>
+
       <div class="message" id="message"></div>
     </div>
   </div>
@@ -554,9 +576,9 @@
           localStorage.setItem('authToken', data.accessToken);
           messageDiv.style.color = 'green';
           messageDiv.textContent = 'Login successful! Redirecting...';
-          setTimeout(() => {
-            window.location.href = '/frontend/create-username.html'; // Replace with your dashboard page
-          }, 1500);
+          // setTimeout(() => {
+          //   window.location.href = '/frontend/create-username.html'; // Replace with your dashboard page
+          // }, 1500);
         } else {
           messageDiv.textContent = data.message || 'Login failed';
         }
@@ -565,6 +587,12 @@
         messageDiv.textContent = 'Network error, please try again.';
       }
     });
+
+    // Redirect to verify-otp
+    window.location.href = 'verify-otp.html?email=' + encodeURIComponent(email);
+    
+    // Redirect to login
+    // window.location.href = 'login.html';
   </script>
 </body>
 </html>

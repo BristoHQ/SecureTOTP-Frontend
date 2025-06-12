@@ -394,6 +394,37 @@
                 margin-bottom: 15px;
             }
         }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #2d2d2d;
+            border-bottom: 1px solid #3b3b3b;
+        }
+
+        .header h2 {
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .back-btn {
+            background-color: transparent;
+            color: #3b82f6;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+        }
+
+        .back-btn:hover {
+            color: #2563eb;
+        }
     </style>
 </head>
 <body>
@@ -406,6 +437,11 @@
             <a href="dashboard.html" class="nav-btn"><i class="fas fa-home"></i> Dashboard</a>
             <button id="logout-btn" class="btn-delete">Logout</button>
         </div>
+    </div>
+
+    <div class="header">
+        <a href="../dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        <h2>PIN Settings</h2>
     </div>
 
     <div class="container">
@@ -453,7 +489,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('authToken');
             if (!token) {
-                window.location.href = 'login.html';
+                window.location.href = '../auth/login.html';
                 return;
             }
             

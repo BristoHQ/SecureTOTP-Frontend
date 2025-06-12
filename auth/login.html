@@ -477,9 +477,22 @@
       </form>
 
       <div class="message" id="message"></div>
+
+      <!-- Update navigation links -->
+      <div class="form-footer">
+        Don't have an account? <a href="register.html">Sign Up</a>
+      </div>
+
+      <div class="alternative-logins">
+        <button class="google-btn" id="googleLogin">
+          <img src="../assets/google-icon.svg" alt="Google"> Sign in with Google
+        </button>
+        <a href="../ELP/ELP-login.html" class="emergency-link">Use Emergency Login Protocol</a>
+      </div>
     </div>
   </div>
 
+  <!-- Update script with correct paths -->
   <script>
     // Loader display for 2-3 seconds
     window.addEventListener('load', () => {
@@ -553,6 +566,12 @@
         messageDiv.textContent = 'Network error, please try again.';
       }
     });
+
+    // Successful login redirect
+    window.location.href = '../dashboard.html';
+    
+    // Emergency login link
+    document.querySelector('.emergency-link').href = '../ELP/ELP-login.html';
   </script>
 </body>
 </html>

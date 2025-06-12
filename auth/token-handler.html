@@ -10,7 +10,7 @@
 
       if (token) {
         localStorage.setItem('authToken', token);
-        window.location.href = "/frontend/dashboard.html";
+        window.location.href = "../dashboard.html";
       } else {
         document.getElementById('status').textContent = "Token not found in URL.";
       }
@@ -19,7 +19,7 @@
   <!-- Update script with correct paths -->
   <script>
     // Redirect to dashboard after processing token
-    window.location.href = '../dashboard.html';
+    // window.location.href = '../dashboard.html';
   </script>
 </head>
 <body>

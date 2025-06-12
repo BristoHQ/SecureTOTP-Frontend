@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Login - SecureTOTP</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            color: #e5e5e5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loader-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            --color: #3b82f6;
+            --size: 60px;
+            width: var(--size);
+            height: calc(var(--size) * 0.7);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+
+        .loader span {
+            width: 100%;
+            height: 100%;
+            background-color: var(--color);
+            animation: keyframes-blink 0.6s alternate infinite linear;
+        }
+
+        .loader span:nth-child(1) { animation-delay: 0ms; }
+        .loader span:nth-child(2) { animation-delay: 60ms; }
+        .loader span:nth-child(3) { animation-delay: 120ms; }
+        .loader span:nth-child(4) { animation-delay: 180ms; }
+        .loader span:nth-child(5) { animation-delay: 120ms; }
+        .loader span:nth-child(6) { animation-delay: 60ms; }
+
+        @keyframes keyframes-blink {
+            0% {
+                opacity: 0.3;
+                transform: scale(0.5) rotate(5deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .loader-container .company-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #e5e5e5;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: fadeIn 0.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+
+        .main-content {
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .main-content.visible {
+            opacity: 1;
+        }
+
+        .elp-container {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            max-width: 500px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: linear-gradient(to right, #2d2d2d, #1e3a8a);
+            padding: 30px;
+            width: 450px;
+            max-width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .instructions {
+            color: #d6d6d6;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            text-align: left;
+            margin-bottom: 10px;
+        }
+
+        .file-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 25px;
+            border: 2px dashed #3b82f6;
+            border-radius: 12px;
+            background-color: rgba(59, 130, 246, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .file-upload-container:hover {
+            background-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .file-upload-container.dragging {
+            background-color: rgba(59, 130, 246, 0.3);
+            border-color: #60a5fa;
+        }
+
+        .file-upload-container i {
+            font-size: 2.5rem;
+            color: #3b82f6;
+            margin-bottom: 15px;
+        }
+
+        .file-upload-text {
+            color: #e5e5e5;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .file-upload-info {
+            color: #a0a0a0;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            color: #3b82f6;
+            font-weight: 600;
+            display: none;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .button-submit {
+            margin-top: 10px;
+            background-color: #3b82f6;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 10px;
+            height: 50px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .button-submit:hover:not(:disabled) {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .button-submit:disabled {
+            background-color: #929292;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: 600;
+            color: red;
+            min-height: 20px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .back-to-login {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            display: inline-block;
+            transition: color 0.2s;
+        }
+
+        .back-to-login:hover {
+            color: #60a5fa;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .elp-container {
+                padding: 15px;
+            }
+
+            .form {
+                width: 100%;
+                padding: 25px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .loader {
+                --size: 50px;
+            }
+
+            .loader-container .company-name {
+                font-size: 1.2rem;
+            }
+
+            .button-submit {
+                height: 45px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            .file-upload-container {
+                padding: 20px 15px;
+            }
+
+            .file-upload-container i {
+                font-size: 2rem;
+            }
+
+            .loader {
+                --size: 45px;
+            }
+
+            .loader-container .company-name {
+                font-size: 1rem;
+            }
+
+            .button-submit {
+                height: 40px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="loader-container">
+        <div class="loader">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="company-name">SecureTOTP</div>
+    </div>
+
+    <div class="main-content">
+        <div class="elp-container">
+            <h2>Emergency Login Protocol</h2>
+            <div class="form">
+                <div class="instructions">
+                    <p>To authenticate using your Emergency Login Protocol (ELP):</p>
+                    <p>1. Upload your ELP file by clicking the area below or dragging the file</p>
+                    <p>2. Click "Login with ELP" to authenticate</p>
+                </div>
+                
+                <label class="file-upload-container" id="fileUploadContainer">
+                    <i class="fas fa-file-upload"></i>
+                    <span class="file-upload-text">Click or drag ELP file here</span>
+                    <span class="file-upload-info">Supports .elp files</span>
+                    <span class="file-name" id="fileName"></span>
+                    <input type="file" id="fileInput" accept=".elp">
+                </label>
+                
+                <button id="loginBtn" class="button-submit" disabled>Login with ELP</button>
+                <div class="message" id="message"></div>
+                
+                <a href="login.html" class="back-to-login">Back to normal login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const loaderContainer = document.querySelector('.loader-container');
+        const mainContent = document.querySelector('.main-content');
+        const fileInput = document.getElementById('fileInput');
+        const fileUploadContainer = document.getElementById('fileUploadContainer');
+        const fileName = document.getElementById('fileName');
+        const loginBtn = document.getElementById('loginBtn');
+        const messageDiv = document.getElementById('message');
+
+        // Show loader for 1.5 seconds (reduced from 2.5s for better UX)
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                loaderContainer.classList.add('hidden');
+                mainContent.classList.add('visible');
+            }, 1500);
+        });
+
+        // File upload interactions
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                const file = fileInput.files[0];
+                if (!file.name.toLowerCase().endsWith('.elp')) {
+                    messageDiv.textContent = 'Please select a valid .elp file';
+                    messageDiv.style.color = 'red';
+                    fileName.style.display = 'none';
+                    loginBtn.disabled = true;
+                    return;
+                }
+                
+                fileName.textContent = file.name;
+                fileName.style.display = 'block';
+                loginBtn.disabled = false;
+                messageDiv.textContent = '';
+            } else {
+                fileName.style.display = 'none';
+                loginBtn.disabled = true;
+            }
+        });
+
+        // Drag and drop functionality
+        fileUploadContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadContainer.classList.add('dragging');
+        });
+
+        fileUploadContainer.addEventListener('dragleave', () => {
+            fileUploadContainer.classList.remove('dragging');
+        });
+
+        fileUploadContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadContainer.classList.remove('dragging');
+            if (e.dataTransfer.files.length) {
+                const file = e.dataTransfer.files[0];
+                if (!file.name.toLowerCase().endsWith('.elp')) {
+                    messageDiv.textContent = 'Please select a valid .elp file';
+                    messageDiv.style.color = 'red';
+                    fileName.style.display = 'none';
+                    loginBtn.disabled = true;
+                    return;
+                }
+                
+                fileInput.files = e.dataTransfer.files;
+                fileName.textContent = file.name;
+                fileName.style.display = 'block';
+                loginBtn.disabled = false;
+                messageDiv.textContent = '';
+            }
+        });
+
+        // Login functionality
+        loginBtn.addEventListener('click', async () => {
+            if (!fileInput.files.length) {
+                messageDiv.textContent = 'Please select an ELP file first';
+                messageDiv.style.color = 'red';
+                return;
+            }
+
+            // Loading state
+            loginBtn.disabled = true;
+            loginBtn.classList.add('btn-loading');
+            messageDiv.textContent = '';
+
+            try {
+                const file = fileInput.files[0];
+                
+                // Create a FormData object to send the file
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response = await fetch('http://localhost:8080/api/v1/elp/login', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Authentication successful
+                    messageDiv.style.color = 'green';
+                    messageDiv.textContent = data.message || 'Authentication successful! Redirecting...';
+                    
+                    // Save the JWT token to localStorage
+                    if (data.token) {
+                        localStorage.setItem('authToken', data.token);
+                        console.log('Token saved successfully');
+                        
+                        // Also save username if provided
+                        if (data.username) {
+                            localStorage.setItem('username', data.username);
+                        }
+                        
+                        // And user ID if provided
+                        if (data.userId) {
+                            localStorage.setItem('userId', data.userId);
+                        }
+                    } else {
+                        console.warn('No token received in the response');
+                    }
+                    
+                    // Success animation
+                    loginBtn.textContent = 'Success!';
+                    loginBtn.style.backgroundColor = '#10b981';
+                    
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else if (response.status === 206) {
+                    // Partial success - ELP valid but user not found
+                    messageDiv.style.color = '#f59e0b'; // warning color
+                    messageDiv.textContent = data.message || 'ELP valid but additional info needed';
+                    
+                    // Maybe redirect to a different page to gather more info
+                    setTimeout(() => {
+                        window.location.href = 'complete-profile.html?userId=' + encodeURIComponent(data.userId || '');
+                    }, 2000);
+                } else {
+                    // Authentication failed
+                    throw new Error(data.error || 'Authentication failed');
+                }
+            } catch (error) {
+                console.error('Error authenticating with ELP:', error);
+                messageDiv.style.color = 'red';
+                messageDiv.textContent = error.message || 'Failed to authenticate. Please try again.';
+                loginBtn.disabled = false;
+                loginBtn.classList.remove('btn-loading');
+                loginBtn.textContent = 'Login with ELP';
+            }
+        });
+    </script>
+</body>
+</html>

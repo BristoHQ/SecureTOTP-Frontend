@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Emergency Login Protocol - SecureTOTP</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            color: #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .navbar {
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 100;
+        }
+
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar .logo img {
+            width: 35px;
+            height: auto;
+        }
+
+        .navbar .logo span {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .navbar .actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            color: #ffffff;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-btn.secondary {
+            color: #a0a0a0;
+        }
+
+        .nav-btn i {
+            font-size: 0.9rem;
+        }
+
+        .btn-delete {
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: none;
+            color: white;
+            cursor: pointer;
+            background-color: #e74c3c;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .btn-delete:hover {
+            background-color: #c23520;
+            transform: translateY(-2px);
+        }
+
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loader-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            --color: #3b82f6;
+            --size: 60px;
+            width: var(--size);
+            height: calc(var(--size) * 0.7);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+
+        .loader span {
+            width: 100%;
+            height: 100%;
+            background-color: var(--color);
+            animation: keyframes-blink 0.6s alternate infinite linear;
+        }
+
+        .loader span:nth-child(1) { animation-delay: 0ms; }
+        .loader span:nth-child(2) { animation-delay: 60ms; }
+        .loader span:nth-child(3) { animation-delay: 120ms; }
+        .loader span:nth-child(4) { animation-delay: 180ms; }
+        .loader span:nth-child(5) { animation-delay: 120ms; }
+        .loader span:nth-child(6) { animation-delay: 60ms; }
+
+        @keyframes keyframes-blink {
+            0% {
+                opacity: 0.3;
+                transform: scale(0.5) rotate(5deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .loader-container .company-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #e5e5e5;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: fadeIn 0.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+
+        .main-content {
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .main-content.visible {
+            opacity: 1;
+        }
+
+        .elp-container {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: linear-gradient(to right, #2d2d2d, #1e3a8a);
+            padding: 30px;
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .instructions {
+            color: #d6d6d6;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .warning-box {
+            background-color: rgba(231, 76, 60, 0.2);
+            border: 1px solid rgba(231, 76, 60, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .warning-box i {
+            color: #e74c3c;
+            margin-right: 8px;
+        }
+
+        .profile-info {
+            background-color: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .profile-info .title {
+            font-weight: 600;
+            color: #3b82f6;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-info .title i {
+            margin-right: 8px;
+        }
+
+        .info-group {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .info-label {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            color: #ffffff;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        /* Agreement checkbox */
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            min-width: 18px;
+            min-height: 18px;
+            margin-top: 2px;
+            accent-color: #3b82f6;
+        }
+
+        .checkbox-container label {
+            color: #d6d6d6;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .button-submit {
+            margin-top: 10px;
+            background-color: #3b82f6;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 10px;
+            height: 50px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .button-submit:hover:not(:disabled) {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .button-submit:disabled {
+            background-color: #929292;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: 600;
+            min-height: 20px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .error {
+            color: #e74c3c;
+        }
+
+        .success {
+            color: #10b981;
+        }
+
+        .btn-loading {
+            color: transparent !important;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .elp-container {
+                padding: 0;
+            }
+
+            .form {
+                padding: 25px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .loader {
+                --size: 50px;
+            }
+
+            .loader-container .company-name {
+                font-size: 1.2rem;
+            }
+
+            .button-submit {
+                height: 45px;
+                font-size: 0.9rem;
+            }
+
+            .instructions {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .navbar .actions {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .form {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            .loader {
+                --size: 45px;
+            }
+
+            .loader-container .company-name {
+                font-size: 1rem;
+            }
+
+            .button-submit {
+                height: 40px;
+                font-size: 0.85rem;
+            }
+
+            .instructions,
+            .message {
+                font-size: 0.8rem;
+            }
+
+            .info-group {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+
+            .info-label {
+                color: #3b82f6;
+                margin-bottom: -5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <img src="https://static.cdnlogo.com/logos/m/41/microsoft-authenticator.svg" alt="SecureTOTP Logo">
+            <span>SecureTOTP</span>
+        </div>
+        <div class="actions">
+            <a href="dashboard.html" class="nav-btn"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="add-account.html" class="nav-btn secondary"><i class="fas fa-plus"></i> Add Account</a>
+            <a href="pin-setting.html" class="nav-btn secondary" id="settingsBtn"><i class="fas fa-cog"></i> Pin Settings</a>
+            <button id="logout-btn" class="btn-delete">Logout</button>
+        </div>
+    </div>
+
+    <div class="loader-container">
+        <div class="loader">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="company-name">SecureTOTP</div>
+    </div>
+
+    <div class="main-content">
+        <div class="elp-container">
+            <h2>Emergency Login Protocol</h2>
+            <div class="form">
+                <div class="instructions">
+                    <p>The Emergency Login Protocol (ELP) is a secure backup method that allows you to regain access to your account in case you lose your device or cannot access your authenticator app.</p>
+                    <div class="warning-box">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Important:</strong> Keep your ELP file in a secure location. Anyone with access to this file can potentially log into your account.
+                    </div>
+                </div>
+                
+                <!-- User Profile Information Section -->
+                <div class="profile-info">
+                    <div class="title">
+                        <i class="fas fa-user-shield"></i>Your Profile Information
+                    </div>
+                    <div id="profile-details">
+                        <div class="info-group">
+                            <span class="info-label">Name:</span>
+                            <span class="info-value" id="profile-name">Loading...</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value" id="profile-email">Loading...</span>
+                        </div>
+                        <div class="info-group">
+                            <span class="info-label">User ID:</span>
+                            <span class="info-value" id="profile-userid">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agreement Checkbox -->
+                <div class="checkbox-container">
+                    <input type="checkbox" id="agree">
+                    <label for="agree">I understand that this file grants emergency access to my account and I will store it securely. I accept full responsibility for keeping this file safe.</label>
+                </div>
+                
+                <button id="generateBtn" class="button-submit" disabled>Generate ELP File</button>
+                <div class="message" id="message"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Loader animation
+        window.addEventListener('load', () => {
+            const loaderContainer = document.querySelector('.loader-container');
+            const mainContent = document.querySelector('.main-content');
+            setTimeout(() => {
+                loaderContainer.classList.add('hidden');
+                mainContent.classList.add('visible');
+            }, 1500);
+        });
+
+        // DOM elements
+        const agreeCheckbox = document.getElementById('agree');
+        const generateBtn = document.getElementById('generateBtn');
+        const messageDiv = document.getElementById('message');
+        const profileName = document.getElementById('profile-name');
+        const profileEmail = document.getElementById('profile-email');
+        const profileUserId = document.getElementById('profile-userid');
+        
+        // Token validation
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // Handle agreement checkbox
+        agreeCheckbox.addEventListener('change', () => {
+            generateBtn.disabled = !agreeCheckbox.checked;
+        });
+
+        // Load user profile data
+        async function loadUserProfile() {
+            try {
+                const response = await fetch('http://localhost:9000/api/v1/users/me', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user profile');
+                }
+                
+                const userData = await response.json();
+                
+                // Display profile information
+                profileName.textContent = userData.fullName || userData.username || 'Not Available';
+                profileEmail.textContent = userData.email || 'Not Available';
+                profileUserId.textContent = userData.id || userData.userId || 'Generated Automatically';
+                
+                // Store user data for ELP generation
+                window.userData = userData;
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                messageDiv.textContent = 'Failed to load profile data';
+                messageDiv.classList.add('error');
+            }
+        }
+        
+        // Load user profile when page loads
+        loadUserProfile();
+
+        // Generate ELP file
+        generateBtn.addEventListener('click', async () => {
+            if (!agreeCheckbox.checked) {
+                messageDiv.textContent = 'Please agree to the terms first';
+                messageDiv.classList.add('error');
+                return;
+            }
+            
+            generateBtn.disabled = true;
+            generateBtn.classList.add('btn-loading');
+            messageDiv.textContent = '';
+            messageDiv.classList.remove('error', 'success');
+
+            try {
+                // Correct the API endpoint to match your backend
+                const response = await fetch('http://localhost:8080/api/v1/elp/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to generate ELP');
+                }
+
+                // Parse the response data that contains fileContent and filename
+                const data = await response.json();
+                
+                // Extract the fileContent and filename from the response
+                const { fileContent, filename } = data;
+                
+                // Decode base64 fileContent to binary
+                const binaryString = window.atob(fileContent);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                
+                // Create a blob from the binary data
+                const blob = new Blob([bytes], { type: 'application/octet-stream' });
+                
+                // Create download link
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename || 'emergency_login_protocol.elp';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                messageDiv.textContent = 'ELP file generated successfully! Store it securely.';
+                messageDiv.classList.add('success');
+                generateBtn.classList.remove('btn-loading');
+                generateBtn.textContent = 'Generate Another ELP';
+                generateBtn.disabled = false;
+            } catch (error) {
+                console.error('Error generating ELP:', error);
+                messageDiv.textContent = error.message || 'Failed to generate ELP. Please try again.';
+                messageDiv.classList.add('error');
+                generateBtn.classList.remove('btn-loading');
+                generateBtn.textContent = 'Generate ELP File';
+                generateBtn.disabled = !agreeCheckbox.checked;
+            }
+        });
+
+        // Logout functionality
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+
+</html>

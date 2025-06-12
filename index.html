@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecureTOTP - Your Trusted 2FA Solution</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', Arial, sans-serif;
+    }
+
+    body {
+      background-color: #1a1a1a;
+      color: #e5e5e5;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .loader-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #1a1a1a;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      opacity: 1;
+      transition: opacity 0.5s ease-out;
+    }
+
+    .loader-container.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loader {
+      --color: #3b82f6;
+      --size: 60px;
+      width: var(--size);
+      height: calc(var(--size) * 0.7);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      margin-bottom: 20px;
+    }
+
+    .loader span {
+      width: 100%;
+      height: 100%;
+      background-color: var(--color);
+      animation: keyframes-blink 0.6s alternate infinite linear;
+    }
+
+    .loader span:nth-child(1) {
+      animation-delay: 0ms;
+    }
+
+    .loader span:nth-child(2) {
+      animation-delay: 60ms;
+    }
+
+    .loader span:nth-child(3) {
+      animation-delay: 120ms;
+    }
+
+    .loader span:nth-child(4) {
+      animation-delay: 180ms;
+    }
+
+    .loader span:nth-child(5) {
+      animation-delay: 120ms;
+    }
+
+    .loader span:nth-child(6) {
+      animation-delay: 60ms;
+    }
+
+    @keyframes keyframes-blink {
+      0% {
+        opacity: 0.3;
+        transform: scale(0.5) rotate(5deg);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .loader-container .company-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #e5e5e5;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      animation: fadeIn 0.8s ease-in-out infinite alternate;
+    }
+
+    .main-content {
+      opacity: 0;
+      transition: opacity 0.5s ease-in;
+    }
+
+    .main-content.visible {
+      opacity: 1;
+    }
+
+    nav {
+      background-color: #2d2d2d;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 70px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo img {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .logo span {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #e5e5e5;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: #a0a0a0;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 1rem;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover {
+      color: #3b82f6;
+    }
+
+    .nav-buttons a {
+      color: #a0a0a0;
+      text-decoration: none;
+      margin-left: 15px;
+      font-size: 1rem;
+      transition: color 0.3s ease;
+    }
+
+    .nav-buttons a:hover {
+      color: #3b82f6;
+    }
+
+    .nav-buttons .signup {
+      background-color: #3b82f6;
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .nav-buttons .signup:hover {
+      background-color: #2563eb;
+      color: #ffffff;
+    }
+
+    .hamburger {
+      display: none;
+      font-size: 1.5rem;
+      color: #e5e5e5;
+      cursor: pointer;
+    }
+
+    #home {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(to right, #2d2d2d, #1e3a8a);
+      text-align: center;
+      padding: 20px;
+    }
+
+    .hero-content {
+      max-width: 1200px;
+      padding: 0 20px;
+      animation: fadeIn 1s ease-in;
+    }
+
+    .hero-content h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .hero-content p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      color: #d1d5db;
+    }
+
+    .hero-content a {
+      background-color: #3b82f6;
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    .hero-content a:hover {
+      background-color: #2563eb;
+      transform: scale(1.05);
+    }
+
+    #features {
+      padding: 60px 20px;
+      background-color: #262626;
+      text-align: center;
+    }
+
+    #features h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      color: #e5e5e5;
+    }
+
+    .features-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background-color: #333333;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .feature-card i {
+      font-size: 2.5rem;
+      color: #3b82f6;
+      margin-bottom: 15px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #e5e5e5;
+    }
+
+    .feature-card p {
+      color: #a0a0a0;
+    }
+
+    #trusted {
+      padding: 60px 20px;
+      background-color: #1a1a1a;
+      text-align: center;
+    }
+
+    #trusted h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 30px;
+      color: #e5e5e5;
+    }
+
+    .trusted-logos {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .trusted-logos img {
+      width: 80px;
+      height: auto;
+      opacity: 0.7;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .trusted-logos img:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    #cta {
+      padding: 60px 20px;
+      background-color: #1e3a8a;
+      text-align: center;
+    }
+
+    #cta h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #e5e5e5;
+    }
+
+    #cta p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      color: #d1d5db;
+    }
+
+    #cta a {
+      background-color: #3b82f6;
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    #cta a:hover {
+      background-color: #2563eb;
+      transform: scale(1.05);
+    }
+
+    footer {
+      background-color: #2d2d2d;
+      padding: 40px 20px;
+      color: #a0a0a0;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .footer-container h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #e5e5e5;
+    }
+
+    .footer-container p,
+    .footer-container a {
+      color: #a0a0a0;
+      text-decoration: none;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .footer-container a:hover {
+      color: #3b82f6;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      margin-top: 20px;
+      color: #a0a0a0;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .loader {
+        --size: 50px;
+      }
+
+      .loader-container .company-name {
+        font-size: 1.2rem;
+      }
+
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        background-color: #2d2d2d;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .nav-links a {
+        margin: 10px 0;
+        font-size: 1.2rem;
+      }
+
+      .nav-buttons {
+        display: flex;
+        align-items: center;
+      }
+
+      .hamburger {
+        display: block;
+      }
+
+      .hero-content h1 {
+        font-size: 1.8rem;
+      }
+
+      .hero-content p {
+        font-size: 1rem;
+      }
+
+      .hero-content a {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+      }
+
+      #features,
+      #trusted,
+      #cta {
+        padding: 40px 15px;
+      }
+
+      #features h2,
+      #cta h2 {
+        font-size: 1.8rem;
+      }
+
+      #trusted h2 {
+        font-size: 1.6rem;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .trusted-logos img {
+        width: 60px;
+      }
+
+      .footer-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .loader {
+        --size: 45px;
+      }
+
+      .loader-container .company-name {
+        font-size: 1rem;
+      }
+
+      .nav-container {
+        padding: 0 15px;
+      }
+
+      .logo span {
+        font-size: 1.2rem;
+      }
+
+      .nav-buttons a {
+        margin-left: 10px;
+        font-size: 0.9rem;
+      }
+
+      .nav-buttons .signup {
+        padding: 6px 12px;
+      }
+
+      .hero-content h1 {
+        font-size: 1.5rem;
+      }
+
+      .hero-content p {
+        font-size: 0.9rem;
+      }
+
+      #features h2,
+      #cta h2 {
+        font-size: 1.5rem;
+      }
+
+      #trusted h2 {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="loader-container">
+    <div class="loader">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="company-name">SecureTOTP</div>
+  </div>
+
+  <div class="main-content">
+    <nav>
+      <div class="nav-container">
+        <div class="logo">
+          <img src="https://static.cdnlogo.com/logos/m/41/microsoft-authenticator.svg" alt="SecureTOTP Logo">
+          <span>SecureTOTP</span>
+        </div>
+        <div class="nav-links">
+          <a href="#home">Home</a>
+          <a href="#features">Features</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
+        </div>
+        <div class="nav-buttons">
+          <a href="/login">Login</a>
+          <a href="/signup" class="signup">Sign Up</a>
+        </div>
+        <div class="hamburger">
+          <i class="fa-solid fa-bars"></i>
+        </div>
+      </div>
+    </nav>
+
+    <section id="home">
+      <div class="hero-content">
+        <h1>Secure Your Accounts with SecureTOTP</h1>
+        <p>Effortless, reliable, and secure two-factor authentication for all your devices.</p>
+        <a href="/signup">Get Started</a>
+      </div>
+    </section>
+
+    <section id="features">
+      <h2>Why Choose SecureTOTP?</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <i class="fa-solid fa-shield-halved"></i>
+          <h3>Bank-Grade Security</h3>
+          <p>Our TOTP solution uses industry-standard encryption to keep your accounts safe.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fa-solid fa-mobile-alt"></i>
+          <h3>Cross-Platform Sync</h3>
+          <p>Access your 2FA codes on any device, anywhere, anytime.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fa-solid fa-cloud"></i>
+          <h3>Cloud Backup</h3>
+          <p>Securely back up your codes in the cloud for peace of mind.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fa-solid fa-user-check"></i>
+          <h3>Easy Setup</h3>
+          <p>Get started in minutes with our user-friendly interface.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="trusted">
+      <h2>Trusted by Over 100,000 Users</h2>
+      <div class="trusted-logos">
+        <img src="https://imgs.search.brave.com/LVH9NAjI4RiYld4lcBHrLWXsnaQtrJ5YzWsjp6bUsLc/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/cHJlbWl1bS12ZWN0/b3IvZ29vZ2xlLWxv/Z28taWNvbi1zZXQt/Z29vZ2xlLWljb24t/c2VhcmNoaW5nLWlj/b25zLXZlY3Rvcl85/ODE1MzYtNDU0Lmpw/Zz9zZW10PWFpc19p/dGVtc19ib29zdGVk/Jnc9NzQw" alt="Company 1">
+        <img src="https://imgs.search.brave.com/iHkbQTj4aZlTc_7pRtQ-E3G3u7PenlogD0buYAcji2c/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pLnBp/bmltZy5jb20vb3Jp/Z2luYWxzL2Q0L2Vm/LzE1L2Q0ZWYxNTUx/N2YwNGJjMGI2MDAy/M2Y2YTQ1MzhlZDVk/LmpwZw" alt="Company 2">
+        <img src="https://cdn.prod.website-files.com/65cafeae0d62d9e4163d1545/66b89d242c6bdb11673aaaca_66b899cd38401814facc439c_old%2520apple%2520logo.avif" alt="Company 3">
+        <img src="https://imgs.search.brave.com/dG-QU08IvKC39ZXe2jijOXkuz4HYI88gzXv2yxgxcC0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4z/ZC5pY29uc2NvdXQu/Y29tLzNkL2ZyZWUv/dGh1bWIvZnJlZS1t/ZXRhLTNkLWljb24t/ZG93bmxvYWQtaW4t/cG5nLWJsZW5kLWZi/eC1nbHRmLWZpbGUt/Zm9ybWF0cy0tdHdp/dHRlci1sb2dvLXNv/Y2lhbC1tZWRpYS1w/YWNrLWxvZ29zLWlj/b25zLTc1MTY4NDIu/cG5nP2Y9d2VicA" alt="Company 4">
+      </div>
+    </section>
+
+    <section id="cta">
+      <h2>Ready to Secure Your Accounts?</h2>
+      <p>Join thousands of users who trust SecureTOTP for their 2FA needs.</p>
+      <a href="/signup">Sign Up Now</a>
+    </section>
+
+    <footer>
+      <div class="footer-container">
+        <div>
+          <h3>SecureTOTP</h3>
+          <p>Your trusted partner for two-factor authentication.</p>
+        </div>
+        <div>
+          <h3>Links</h3>
+          <a href="#features">Features</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
+        </div>
+        <div>
+          <h3>Contact</h3>
+          <p>Email: work.manish02@yahoo.com</p>
+          <p>Phone: +91 1234567890</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 SecureTOTP. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Loader display for 2-3 seconds
+    window.addEventListener('load', () => {
+      const loaderContainer = document.querySelector('.loader-container');
+      const mainContent = document.querySelector('.main-content');
+      setTimeout(() => {
+        loaderContainer.classList.add('hidden');
+        mainContent.classList.add('visible');
+      }, 2500); // 2.5 seconds
+    });
+
+    // Hamburger menu toggle
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+      hamburger.innerHTML = navLinks.classList.contains('active')
+        ? '<i class="fa-solid fa-times"></i>'
+        : '<i class="fa-solid fa-bars"></i>';
+    });
+
+    // Close mobile menu when clicking a link
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('active');
+        hamburger.innerHTML = '<i class="fa-solid fa-bars"></i>';
+      });
+    });
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+
+    // Fade-in animation for sections on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = 1;
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('section').forEach(section => {
+      section.style.opacity = 0;
+      section.style.transform = 'translateY(20px)';
+      section.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      observer.observe(section);
+    });
+  </script>
+</body>
+
+</html>

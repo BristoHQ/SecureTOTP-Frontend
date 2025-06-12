@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIN Settings - SecureTOTP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            color: #e5e5e5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background: linear-gradient(to right, #2d2d2d, #1e3a8a);
+            padding: 15px 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 28px;
+            width: auto;
+        }
+
+        .logo span {
+            color: #ffffff;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .navbar .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .nav-btn:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .nav-btn.secondary {
+            background-color: #4b5563;
+        }
+
+        .nav-btn.secondary:hover {
+            background-color: #374151;
+        }
+
+        .btn-delete {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .btn-delete:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* Container Styles */
+        .container {
+            flex: 1;
+            max-width: 600px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Settings Card Styles */
+        .settings-card {
+            background: #2d2d2d;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .settings-section {
+            margin-bottom: 25px;
+        }
+
+        .settings-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-section h3 {
+            color: #ffffff;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #3b3b3b;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            color: #d6d6d6;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background: #383838;
+            border: 1.5px solid #4b4b4b;
+            border-radius: 10px;
+            font-size: 1rem;
+            color: #e5e5e5;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #4b5563;
+            color: white;
+            margin-top: 15px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #374151;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+            color: transparent !important;
+        }
+        
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            border: 3px solid transparent;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: button-loading-spinner 1s ease infinite;
+        }
+        
+        @keyframes button-loading-spinner {
+            from { transform: rotate(0turn); }
+            to { transform: rotate(1turn); }
+        }
+
+        .info-text {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 12px 15px;
+            }
+
+            .logo span {
+                font-size: 1.2rem;
+            }
+
+            .nav-btn, .btn-delete {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+
+            .container {
+                margin: 15px auto;
+                padding: 0 15px;
+                gap: 15px;
+            }
+
+            .settings-card {
+                padding: 20px;
+            }
+
+            .settings-section h3 {
+                font-size: 1.1rem;
+                margin-bottom: 12px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .form-group label {
+                font-size: 0.9rem;
+            }
+
+            .form-group input {
+                padding: 10px 12px;
+                font-size: 0.95rem;
+            }
+
+            .btn {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+
+            .info-text {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 10px 12px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .navbar .actions {
+                margin-top: 10px;
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .logo span {
+                font-size: 1.1rem;
+            }
+
+            .nav-btn, .btn-delete {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+
+            .container {
+                margin: 10px auto;
+                padding: 0 10px;
+                gap: 12px;
+            }
+
+            .settings-card {
+                padding: 15px;
+            }
+
+            .settings-section h3 {
+                font-size: 1rem;
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+            }
+
+            .form-group label {
+                font-size: 0.85rem;
+                margin-bottom: 6px;
+            }
+
+            .form-group input {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+
+            .btn {
+                padding: 8px 10px;
+                font-size: 0.85rem;
+            }
+
+            .info-text {
+                font-size: 0.8rem;
+                margin-top: 8px;
+            }
+
+            .alert {
+                padding: 12px;
+                font-size: 0.85rem;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <img src="https://static.cdnlogo.com/logos/m/41/microsoft-authenticator.svg" alt="SecureTOTP Logo">
+            <span>SecureTOTP</span>
+        </div>
+        <div class="actions">
+            <a href="dashboard.html" class="nav-btn"><i class="fas fa-home"></i> Dashboard</a>
+            <button id="logout-btn" class="btn-delete">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="alert alert-success" id="successAlert">Operation successful!</div>
+        <div class="alert alert-error" id="errorAlert">Error occurred!</div>
+
+        <div class="settings-card">
+            <div class="settings-section">
+                <h3><i class="fas fa-key"></i> PIN Management</h3>
+                <form id="create-pin-form">
+                    <div class="form-group">
+                        <label for="new-pin">Create New PIN</label>
+                        <input type="password" id="new-pin" placeholder="Enter a 4-digit PIN" maxlength="4" pattern="[0-9]{4}" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Create PIN</button>
+                </form>
+                
+                <form id="update-pin-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="current-pin">Current PIN</label>
+                        <input type="password" id="current-pin" placeholder="Enter current PIN" maxlength="4" pattern="[0-9]{4}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="updated-pin">New PIN</label>
+                        <input type="password" id="updated-pin" placeholder="Enter new PIN" maxlength="4" pattern="[0-9]{4}" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Update PIN</button>
+                    <button type="button" id="delete-pin-btn" class="btn btn-danger" style="margin-top: 10px;"><i class="fas fa-trash-alt"></i> Remove PIN</button>
+                </form>
+            </div>
+            
+            <div class="settings-section">
+                <h3><i class="fas fa-shield-alt"></i> Security</h3>
+                <button id="reset-btn" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Reset All Data</button>
+                <p class="info-text">
+                    This will permanently remove all your accounts and PIN settings. This action cannot be undone.
+                </p>
+            </div>
+            
+            <a href="dashboard.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const createPinForm = document.getElementById('create-pin-form');
+            const updatePinForm = document.getElementById('update-pin-form');
+            const deletePinBtn = document.getElementById('delete-pin-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const successAlert = document.getElementById('successAlert');
+            const errorAlert = document.getElementById('errorAlert');
+            
+            // Check if user has PIN setup
+            checkPinStatus();
+
+            // Helper function to set loading state on buttons
+            function setButtonLoading(button, isLoading) {
+                if (isLoading) {
+                    button.disabled = true;
+                    button.classList.add('btn-loading');
+                    button.originalText = button.innerHTML;
+                    button.innerHTML = '';
+                } else {
+                    button.disabled = false;
+                    button.classList.remove('btn-loading');
+                    if (button.originalText) {
+                        button.innerHTML = button.originalText;
+                        button.originalText = null;
+                    }
+                }
+            }
+            
+            // Create PIN form submission
+            createPinForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitBtn = createPinForm.querySelector('button[type="submit"]');
+                setButtonLoading(submitBtn, true);
+
+                const pin = document.getElementById('new-pin').value;
+                
+                try {
+                    const response = await fetch('http://localhost:8080/create-pin', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ pin })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to create PIN');
+                    }
+                    
+                    showAlert(successAlert, 'PIN created successfully!');
+                    createPinForm.style.display = 'none';
+                    updatePinForm.style.display = 'block';
+                    document.getElementById('current-pin').value = '';
+                    document.getElementById('updated-pin').value = '';
+                } catch (error) {
+                    console.error('Error creating PIN:', error);
+                    showAlert(errorAlert, 'Failed to create PIN');
+                } finally {
+                    setButtonLoading(submitBtn, false);
+                }
+            });
+            
+            // Update PIN form submission
+            updatePinForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitBtn = updatePinForm.querySelector('button[type="submit"]');
+                setButtonLoading(submitBtn, true);
+
+                const currentPin = document.getElementById('current-pin').value;
+                const newPin = document.getElementById('updated-pin').value;
+                
+                try {
+                    const response = await fetch('http://localhost:8080/update-pin', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ currentPin, newPin })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Failed to update PIN');
+                    }
+                    
+                    showAlert(successAlert, 'PIN updated successfully!');
+                    document.getElementById('current-pin').value = '';
+                    document.getElementById('updated-pin').value = '';
+                } catch (error) {
+                    console.error('Error updating PIN:', error);
+                    showAlert(errorAlert, error.message || 'Failed to update PIN');
+                } finally {
+                    setButtonLoading(submitBtn, false);
+                }
+            });
+
+            // Delete PIN button
+            deletePinBtn.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to remove your PIN? This will disable PIN protection.')) {
+                    setButtonLoading(deletePinBtn, true);
+                    await deletePin();
+                    setButtonLoading(deletePinBtn, false);
+                }
+            });
+
+            async function deletePin() {
+                try {
+                    const response = await fetch('http://localhost:8080/delete-pin', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.error != null) {
+                        throw new Error(data.error || 'Failed to delete PIN');
+                    } 
+                    
+                    showAlert(successAlert, 'PIN deleted successfully!');
+                    sessionStorage.removeItem('pinVerified');
+                    createPinForm.style.display = 'block';
+                    updatePinForm.style.display = 'none';
+                } catch (error) {
+                    console.error('Error deleting PIN:', error);
+                    showAlert(errorAlert, error.message || 'Failed to delete PIN');
+                }
+            }
+
+            // Reset button
+            resetBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to reset all your data? This cannot be undone.')) {
+                    setButtonLoading(resetBtn, true);
+                    
+                    // Call delete PIN API
+                    deletePin().then(() => {
+                        // Then reset other data
+                        sessionStorage.removeItem('pinVerified');
+                        
+                        showAlert(successAlert, 'All data has been reset');
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 1500);
+                    }).finally(() => {
+                        setButtonLoading(resetBtn, false);
+                    });
+                }
+            });
+            
+            // Logout button
+            logoutBtn.addEventListener('click', () => {
+                setButtonLoading(logoutBtn, true);
+                setTimeout(() => {
+                    localStorage.removeItem('authToken');
+                    window.location.href = 'login.html';
+                }, 500);
+            });
+            
+            // Check if user already has a PIN
+            async function checkPinStatus() {
+                try {
+                    const response = await fetch('http://localhost:8080/get-pin', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.pin === "") {
+                        createPinForm.style.display = 'block';
+                        updatePinForm.style.display = 'none';
+                    } else {
+                        createPinForm.style.display = 'none';
+                        updatePinForm.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error checking PIN status:', error);
+                    showAlert(errorAlert, 'Failed to check PIN status');
+                }
+            }
+            
+            // Show alert message
+            function showAlert(alertElement, message) {
+                alertElement.textContent = message;
+                alertElement.style.display = 'block';
+                
+                setTimeout(() => {
+                    alertElement.style.display = 'none';
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

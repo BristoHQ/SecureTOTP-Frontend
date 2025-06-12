@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2FA Authenticator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <style>
+    /* Existing styles unchanged */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+      background-color: #1a1a1a;
+      color: #e5e5e5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+    }
+
+    .navbar {
+      background: linear-gradient(to right, #2d2d2d, #1e3a8a);
+      padding: 15px 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .navbar h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .navbar .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .nav-btn {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+
+    .nav-btn:hover {
+      background-color: #2563eb;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+
+    .nav-btn.secondary {
+      background-color: #4b5563;
+    }
+
+    .nav-btn.secondary:hover {
+      background-color: #374151;
+    }
+
+    .container {
+      flex: 1;
+      max-width: 800px;
+      margin: 20px auto;
+      max-height: calc(100vh - 80px);
+      overflow-y: auto;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .code-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .auth-code {
+      background: #2d2d2d;
+      padding: 20px;
+      width: calc(50% - 20px);
+      max-width: 370px;
+      min-width: 300px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid transparent;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    .auth-code:hover {
+      border: 1px solid #444444;
+    }
+
+    .code-details {
+      flex: 1;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .code-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-issuer {
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+    }
+
+    .code-issuer img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: #ffffff;
+      padding: 4px;
+    }
+
+    .code-username {
+      color: #d6d6d6;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .totp-code {
+      font-size: 1.8rem;
+      font-weight: bold;
+      letter-spacing: 3px;
+      color: #3b82f6;
+      font-family: monospace;
+    }
+
+    .delete-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      margin-top: 40px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.2s;
+    }
+
+    .delete-btn:hover {
+      background-color: #c0392b;
+      transform: translateY(-2px);
+    }
+
+    .hide-codes-btn {
+      background-color: #3b82f6;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.2s, transform 0.2s;
+      margin-top: 15px;
+      align-self: center;
+    }
+
+    .hide-codes-btn:hover {
+      background-color: #2563eb;
+      transform: translateY(-2px);
+    }
+
+    .countdown-container {
+      width: 35px;
+      height: 35px;
+      position: relative;
+    }
+
+    .countdown-ring {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .countdown-background {
+      stroke: #4b5563;
+      stroke-width: 4;
+      fill: none;
+    }
+
+    .countdown-progress {
+      stroke: #3b82f6;
+      stroke-width: 4;
+      fill: none;
+      stroke-linecap: round;
+      transform: rotate(-90deg);
+      transform-origin: center;
+      transition: stroke-dashoffset 1s linear, stroke 0.2s;
+    }
+
+    .countdown-text {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #d6d6d6;
+    }
+
+    .locked-state {
+      text-align: center;
+      padding: 30px;
+      background: #2d2d2d;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .locked-state img {
+      width: 80px;
+      margin-bottom: 20px;
+    }
+
+    .locked-state h3 {
+      margin-bottom: 10px;
+      color: #ffffff;
+      font-size: 1.3rem;
+    }
+
+    .locked-state p {
+      color: #d6d6d6;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+
+    .show-codes-btn {
+      background-color: #3b82f6;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.2s, transform 0.2s;
+    }
+
+    .show-codes-btn:hover {
+      background-color: #2563eb;
+      transform: translateY(-2px);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px;
+      background: #2d2d2d;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .empty-state img {
+      width: 80px;
+      margin-bottom: 20px;
+    }
+
+    .empty-state h3 {
+      margin-bottom: 10px;
+      color: #ffffff;
+      font-size: 1.3rem;
+    }
+
+    .empty-state p {
+      color: #d6d6d6;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+
+    .empty-state .btn {
+      background-color: #3b82f6;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.2s, transform 0.2s;
+    }
+
+    .empty-state .btn:hover {
+      background-color: #2563eb;
+      transform: translateY(-2px);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .pin-modal,
+    .confirm-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .pin-modal-content,
+    .confirm-modal-content {
+      background: #2d2d2d;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .pin-modal-content h2,
+    .confirm-modal-content h2 {
+      color: #ffffff;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .pin-input {
+      margin: 20px 0;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .pin-digit {
+      width: 50px;
+      height: 60px;
+      text-align: center;
+      font-size: 1.5rem;
+      border: 1.5px solid #929292;
+      border-radius: 8px;
+      background: transparent;
+      color: #e5e5e5;
+      transition: border-color 0.2s;
+    }
+
+    .pin-digit:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    #pinError {
+      color: #e74c3c;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .confirm-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      gap: 10px;
+    }
+
+    .btn-cancel,
+    .btn-delete,
+    .btn-verify {
+      background-color: #4b5563;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.2s;
+      flex: 1;
+    }
+
+    .btn-cancel:hover,
+    .btn-verify:hover {
+      background-color: #374151;
+      transform: translateY(-2px);
+    }
+
+    .btn-delete {
+      background-color: #e74c3c;
+    }
+
+    .btn-delete:hover {
+      background-color: #c0392b;
+      transform: translateY(-2px);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(46, 204, 113, 0.9);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      z-index: 1010;
+      display: none;
+      font-size: 0.9rem;
+      animation: fadeInToast 0.3s ease;
+    }
+
+    .toast.error {
+      background-color: rgba(231, 76, 60, 0.9);
+    }
+
+    @keyframes fadeInToast {
+      from {
+        opacity: 0;
+        transform: translate(-50%, 10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px auto;
+        padding: 0 10px;
+        max-width: 100%;
+      }
+
+      .navbar {
+        padding: 12px 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .navbar h1 {
+        font-size: 1.4rem;
+      }
+
+      .navbar .actions {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .nav-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        min-width: 100px;
+        touch-action: manipulation;
+      }
+
+      .code-container {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .auth-code {
+        width: 360px;
+        max-width: 360px;
+        padding: 12px;
+        margin: 8px 0;
+        display: flex;
+        flex-direction: row;
+        /* Change to row instead of column */
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .code-details {
+        flex: 1;
+      }
+
+      .code-header {
+        width: 100%;
+        flex-direction: row;
+        justify-content: flex-start;
+        /* Left align the issuer */
+        align-items: center;
+        margin-bottom: 5px;
+      }
+
+      .code-footer {
+        width: 100%;
+        flex-direction: row;
+        justify-content: flex-start;
+        /* Left align the code */
+        align-items: center;
+      }
+
+      .code-issuer {
+        font-size: 0.95rem;
+        gap: 8px;
+      }
+
+      .code-issuer img {
+        width: 26px;
+        height: 26px;
+      }
+
+      .code-username {
+        font-size: 0.8rem;
+        margin-bottom: 5px;
+      }
+
+      .totp-code {
+        font-size: 1.4rem;
+        letter-spacing: 2px;
+      }
+
+      /* Right side controls */
+      .auth-code-controls {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 10px;
+        height: 100%;
+      }
+
+      .countdown-container {
+        width: 35px;
+        height: 35px;
+      }
+
+      .delete-btn {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        margin: 8px auto;
+        padding: 0 8px;
+      }
+
+      .navbar {
+        padding: 10px 12px;
+      }
+
+      .navbar h1 {
+        font-size: 1.2rem;
+      }
+
+      .nav-btn {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        min-width: 90px;
+      }
+
+      .auth-code {
+        padding: 10px;
+        max-width: 320px;
+        /* Changed from 280px */
+        gap: 6px;
+      }
+
+      .code-issuer {
+        font-size: 0.9rem;
+      }
+
+      .code-issuer img {
+        width: 24px;
+        height: 24px;
+      }
+
+      .code-username {
+        font-size: 0.75rem;
+      }
+
+      .totp-code {
+        font-size: 1.2rem;
+        letter-spacing: 1.5px;
+      }
+
+      .delete-btn {
+        padding: 5px 8px;
+        font-size: 0.7rem;
+      }
+
+      .countdown-container {
+        width: 28px;
+        height: 28px;
+      }
+
+      .countdown-text {
+        font-size: 0.7rem;
+      }
+
+      .hide-codes-btn {
+        padding: 7px 14px;
+        font-size: 0.75rem;
+      }
+
+      .pin-modal-content,
+      .confirm-modal-content {
+        padding: 15px;
+        max-width: 280px;
+      }
+
+      .pin-modal-content h2,
+      .confirm-modal-content h2 {
+        font-size: 1.2rem;
+      }
+
+      .pin-digit {
+        width: 36px;
+        height: 44px;
+        font-size: 1.1rem;
+      }
+
+      .locked-state,
+      .empty-state {
+        padding: 15px;
+        max-width: 280px;
+      }
+
+      .locked-state img,
+      .empty-state img {
+        width: 60px;
+      }
+
+      .locked-state h3,
+      .empty-state h3 {
+        font-size: 1.1rem;
+      }
+
+      .locked-state p,
+      .empty-state p {
+        font-size: 0.8rem;
+      }
+
+      .show-codes-btn {
+        padding: 7px 14px;
+        font-size: 0.75rem;
+      }
+
+      .confirm-actions {
+        gap: 6px;
+      }
+
+      .btn-cancel,
+      .btn-delete,
+      .btn-verify {
+        padding: 8px;
+        font-size: 0.75rem;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .container {
+        margin: 5px auto;
+        padding: 0 5px;
+      }
+
+      .navbar {
+        padding: 8px 10px;
+      }
+
+      .navbar h1 {
+        font-size: 1.1rem;
+      }
+
+      .nav-btn {
+        padding: 5px 8px;
+        font-size: 0.7rem;
+        min-width: 80px;
+      }
+
+      .auth-code {
+        max-width: 300px;
+        /* Changed from 260px */
+        padding: 8px;
+      }
+
+      .code-issuer {
+        font-size: 0.85rem;
+      }
+
+      .code-issuer img {
+        width: 22px;
+        height: 22px;
+      }
+
+      .code-username {
+        font-size: 0.7rem;
+      }
+
+      .totp-code {
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+      }
+
+      .delete-btn {
+        padding: 4px 6px;
+        font-size: 0.65rem;
+      }
+
+      .countdown-container {
+        width: 26px;
+        height: 26px;
+      }
+
+      .countdown-text {
+        font-size: 0.65rem;
+      }
+
+      .hide-codes-btn {
+        padding: 6px 12px;
+        font-size: 0.7rem;
+      }
+
+      .pin-modal-content,
+      .confirm-modal-content {
+        padding: 12px;
+        max-width: 260px;
+      }
+
+      .pin-modal-content h2,
+      .confirm-modal-content h2 {
+        font-size: 1.1rem;
+      }
+
+      .pin-digit {
+        width: 32px;
+        height: 40px;
+        font-size: 1rem;
+      }
+
+      .locked-state,
+      .empty-state {
+        padding: 12px;
+        max-width: 260px;
+      }
+
+      .locked-state img,
+      .empty-state img {
+        width: 50px;
+      }
+
+      .locked-state h3,
+      .empty-state h3 {
+        font-size: 1rem;
+      }
+
+      .locked-state p,
+      .empty-state p {
+        font-size: 0.75rem;
+      }
+
+      .show-codes-btn {
+        padding: 6px 12px;
+        font-size: 0.7rem;
+      }
+
+      .btn-cancel,
+      .btn-delete,
+      .btn-verify {
+        padding: 6px;
+        font-size: 0.7rem;
+      }
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo img {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .logo span {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #e5e5e5;
+    }
+
+    .btn-loading {
+      position: relative;
+      pointer-events: none;
+      color: transparent !important;
+    }
+
+    .btn-loading::after {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: auto;
+      border: 3px solid transparent;
+      border-top-color: white;
+      border-radius: 50%;
+      animation: button-loading-spinner 1s ease infinite;
+    }
+
+    @keyframes button-loading-spinner {
+      from {
+        transform: rotate(0turn);
+      }
+
+      to {
+        transform: rotate(1turn);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="navbar">
+    <!-- <h1>2FA Authenticator</h1> -->
+    <div class="logo">
+      <img src="https://static.cdnlogo.com/logos/m/41/microsoft-authenticator.svg" alt="SecureTOTP Logo">
+      <span>SecureTOTP</span>
+    </div>
+    <div class="actions">
+      <a href="add-account.html" class="nav-btn"><i class="fas fa-plus"></i> Add Account</a>
+      <a href="pin-setting.html" class="nav-btn secondary" id="settingsBtn"><i class="fas fa-cog"></i> Pin Settings</a>
+       <button id="logout-btn" class="btn-delete">Logout</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="code-container" id="codesList">
+      <div class="locked-state">
+        <img src="https://static.cdnlogo.com/logos/m/41/microsoft-authenticator.svg" alt="Locked">
+        <h3>2FA Codes Locked</h3>
+        <p>Enter your PIN to view your authentication codes.</p>
+        <button class="show-codes-btn" id="showCodesBtn"><i class="fas fa-unlock"></i> Show Codes</button>
+      </div>
+    </div>
+
+    <div class="pin-modal" id="pinModal">
+      <div class="pin-modal-content">
+        <h2>Enter PIN</h2>
+        <div class="pin-input">
+          <input type="text" class="pin-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+          <input type="text" class="pin-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+          <input type="text" class="pin-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+          <input type="text" class="pin-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+        </div>
+        <div id="pinError">Invalid PIN. Please try again.</div>
+        <button class="btn-verify" id="verifyPinBtn">Verify PIN</button>
+      </div>
+    </div>
+
+    <div class="confirm-modal" id="confirmModal">
+      <div class="confirm-modal-content">
+        <h2>Delete Account</h2>
+        <p>Are you sure you want to delete this account?</p>
+        <p id="deleteAccountName" style="font-weight: bold; margin-top: 10px;"></p>
+        <div class="confirm-actions">
+          <button class="btn-cancel" id="cancelDeleteBtn">Cancel</button>
+          <button class="btn-delete" id="confirmDeleteBtn">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script>
+    const TOTP_PERIOD = 30;
+    let timeLeft = TOTP_PERIOD;
+    let codes = [];
+    let accountToDelete = null;
+    const circumference = 2 * Math.PI * 18;
+
+    const codesList = document.getElementById('codesList');
+    const pinModal = document.getElementById('pinModal');
+    const pinDigits = document.querySelectorAll('.pin-digit');
+    const verifyPinBtn = document.getElementById('verifyPinBtn');
+    const pinError = document.getElementById('pinError');
+    const confirmModal = document.getElementById('confirmModal');
+    const deleteAccountName = document.getElementById('deleteAccountName');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const toast = document.getElementById('toast');
+    const showCodesBtn = document.getElementById('showCodesBtn');
+
+    async function fetchCodes() {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:8080/current-codes', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch codes');
+        }
+
+        const data = await response.json();
+        codes = [];
+
+        // The API now returns an array of objects
+        if (Array.isArray(data)) {
+          codes = data.map(item => ({
+            issuer: item.issuer,
+            nickname: item.nickname,
+            code: item.code,
+            logo: item.logoUrl || getDefaultLogo(item.issuer)
+          }));
+        }
+        console.log(codes)
+
+        updateCodesDisplay();
+      } catch (error) {
+        console.error('Error fetching codes:', error);
+        showToast('Failed to fetch codes', true);
+        updateCodesDisplay();
+      }
+    }
+
+    function updateCodesDisplay() {
+      const pinVerified = sessionStorage.getItem('pinVerified');
+      const container = codesList.parentElement;
+
+      const existingHideBtn = container.querySelector('.hide-codes-btn');
+      if (existingHideBtn) {
+        existingHideBtn.remove();
+      }
+
+      if (!pinVerified) {
+        codesList.innerHTML = `
+          <div class="locked-state">
+            <img src="https://static.cdnlogo.com/logos/m/41/microsoft-authenticator.svg" alt="Locked">
+            <h3>2FA Codes Locked</h3>
+            <p>Enter your PIN to view your authentication codes.</p>
+            <button class="show-codes-btn" id="showCodesBtn"><i class="fas fa-unlock"></i> Show Codes</button>
+          </div>
+        `;
+        document.getElementById('showCodesBtn').addEventListener('click', () => {
+          pinModal.style.display = 'flex';
+          pinDigits[0].focus();
+        });
+        return;
+      }
+
+      if (codes.length === 0) {
+        codesList.innerHTML = `
+          <div class="empty-state">
+            <img src="https://cdn-icons-png.flaticon.com/512/6195/6195696.png" alt="Empty">
+            <h3>No Accounts Added</h3>
+            <p>Add your first 2FA account to get started</p>
+            <a href="add-account.html" class="btn">Add Account</a>
+          </div>
+        `;
+        return;
+      }
+
+      codesList.innerHTML = '';
+
+      codes.forEach((codeData, index) => {
+        const logoUrl = codeData.logo;
+        const codeElement = document.createElement('div');
+        codeElement.className = 'auth-code';
+
+        codeElement.innerHTML = `
+          <div class="code-details">
+            <div class="code-header">
+              <div class="code-issuer">
+                <img src="${logoUrl}" alt="${codeData.issuer} logo" onerror="this.onerror=null; this.src='${getDefaultLogo(codeData.issuer)}'">
+                ${codeData.issuer}
+              </div>
+            </div>
+            <div class="code-username">
+              <span>${codeData.nickname}</span>
+            </div>
+            <div class="totp-code">${codeData.code}</div>
+          </div>
+          <div class="auth-code-controls">
+            <div class="countdown-container">
+              <svg class="countdown-ring" viewBox="0 0 40 40">
+                <circle class="countdown-background" cx="20" cy="20" r="18"></circle>
+                <circle class="countdown-progress" cx="20" cy="20" r="18" 
+                        stroke-dasharray="${circumference}" stroke-dashoffset="0"></circle>
+              </svg>
+              <div class="countdown-text">${timeLeft}</div>
+            </div>
+            <button class="delete-btn" title="Delete account" 
+                    data-nickname="${codeData.nickname}" data-issuer="${codeData.issuer}">
+              Delete
+            </button>
+          </div>
+        `;
+
+        codesList.appendChild(codeElement);
+      });
+
+      const hideCodesBtn = document.createElement('button');
+      hideCodesBtn.className = 'hide-codes-btn';
+      hideCodesBtn.innerHTML = '<i class="fas fa-lock"></i> Hide Codes';
+      hideCodesBtn.addEventListener('click', () => {
+        sessionStorage.removeItem('pinVerified');
+        updateCodesDisplay();
+      });
+      container.appendChild(hideCodesBtn);
+
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', handleDeleteClick);
+      });
+
+      updateCountdownDisplay();
+    }
+
+    function handleDeleteClick(e) {
+      e.stopPropagation();
+      const nickname = e.currentTarget.getAttribute('data-nickname');
+      const issuer = e.currentTarget.getAttribute('data-issuer');
+      const codeData = codes.find(code => code.nickname === nickname && code.issuer === issuer);
+
+      if (codeData) {
+        accountToDelete = { nickname, issuer };
+        deleteAccountName.textContent = `${codeData.issuer} (${nickname})`;
+        confirmModal.style.display = 'flex';
+      }
+    }
+
+    // Add this helper function
+function setButtonLoading(button, isLoading) {
+  if (isLoading) {
+    button.disabled = true;
+    button.classList.add('btn-loading');
+    button.originalText = button.innerHTML;
+    button.innerHTML = '';
+  } else {
+    button.disabled = false;
+    button.classList.remove('btn-loading');
+    if (button.originalText) {
+      button.innerHTML = button.originalText;
+      button.originalText = null;
+    }
+  }
+}
+
+    async function deleteAccount(accountInfo) {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Disable button and show loading animation
+      setButtonLoading(confirmDeleteBtn, true);
+
+      try {
+        const response = await fetch(
+          `http://localhost:8080/account/${encodeURIComponent(accountInfo.issuer)}/${encodeURIComponent(accountInfo.nickname)}`,
+          {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to delete account');
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          showToast('Account deleted successfully');
+          codes = codes.filter(code =>
+            !(code.nickname === accountInfo.nickname && code.issuer === accountInfo.issuer)
+          );
+          updateCodesDisplay();
+        } else {
+          showToast('Failed to delete account', true);
+        }
+      } catch (error) {
+        console.error('Error deleting account:', error);
+        showToast('Failed to delete account', true);
+      } finally {
+        // Re-enable button and hide loading animation
+        setButtonLoading(confirmDeleteBtn, false);
+        confirmModal.style.display = 'none';
+        accountToDelete = null;
+      }
+    }
+
+    function showToast(message, isError = false) {
+      toast.textContent = message;
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.style.display = 'block';
+
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3000);
+    }
+
+    function startCountdown() {
+      const pinVerified = sessionStorage.getItem('pinVerified');
+      if (!pinVerified) return;
+
+      const now = Math.floor(Date.now() / 1000);
+      timeLeft = TOTP_PERIOD - (now % TOTP_PERIOD);
+      updateCountdownDisplay();
+
+      if (timeLeft <= 1) {
+        setTimeout(fetchCodes, 1000);
+      }
+    }
+
+    function updateCountdownDisplay() {
+      const pinVerified = sessionStorage.getItem('pinVerified');
+      if (!pinVerified) return;
+
+      const percentage = (timeLeft / TOTP_PERIOD) * 100;
+      const dashOffset = circumference - (circumference * percentage / 100);
+
+      const countdownProgressElements = document.querySelectorAll('.countdown-progress');
+      const countdownTextElements = document.querySelectorAll('.countdown-text');
+
+      countdownProgressElements.forEach(element => {
+        element.style.strokeDashoffset = dashOffset;
+        element.style.stroke = timeLeft <= 5 ? '#e74c3c' : '#3b82f6';
+      });
+
+      countdownTextElements.forEach(element => {
+        element.textContent = timeLeft;
+      });
+    }
+
+    function getDefaultLogo(issuer) {
+      const logos = {
+        'github': 'https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png',
+        'google': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png',
+        'discord': 'https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png',
+        'microsoft': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/512px-Microsoft_logo.svg.png',
+        'facebook': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/512px-2021_Facebook_icon.svg.png',
+        'twitter': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Logo_of_Twitter.svg/512px-Logo_of_Twitter.svg.png',
+        'amazon': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/512px-Amazon_logo.svg.png'
+      };
+
+      const lowerIssuer = issuer.toLowerCase();
+      for (const [key, value] of Object.entries(logos)) {
+        if (lowerIssuer.includes(key)) {
+          return value;
+        }
+      }
+
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(issuer)}&background=random`;
+    }
+
+    async function verifyPin() {
+      const pin = Array.from(pinDigits).map(input => input.value).join('');
+
+      if (pin.length !== 4) {
+        pinError.style.display = 'block';
+        return;
+      }
+
+      // Disable button and show loading animation
+      setButtonLoading(verifyPinBtn, true);
+
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:8080/verify-pin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ pin })
+        });
+
+        const data = await response.json();
+
+        if (data.verified) {
+          sessionStorage.setItem('pinVerified', 'true');
+          pinModal.style.display = 'none';
+          fetchCodes();
+        } else {
+          pinError.style.display = 'block';
+          pinDigits.forEach(input => input.value = '');
+          pinDigits[0].focus();
+        }
+      } catch (error) {
+        console.error('Error verifying PIN:', error);
+        pinError.style.display = 'block';
+        pinDigits.forEach(input => input.value = '');
+        pinDigits[0].focus();
+      } finally {
+        // Re-enable button and hide loading animation
+        setButtonLoading(verifyPinBtn, false);
+      }
+    }
+
+    async function checkPinStatus() {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:8080/get-pin', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+        if (data.pin === "" || data.pin === null) {
+          sessionStorage.setItem('pinVerified', 'true');
+          pinModal.style.display = 'none';
+          fetchCodes();
+        } else {
+          sessionStorage.removeItem('pinVerified');
+          updateCodesDisplay();
+        }
+      } catch (error) {
+        console.error('Error getting PIN:', error);
+        showToast('Error checking PIN status', true);
+        updateCodesDisplay();
+      }
+    }
+      // Logout functionality
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        localStorage.removeItem('authToken');
+        window.location.href = '/login.html';
+      });
+
+    window.onload = function () {
+      checkPinStatus();
+
+      setInterval(() => {
+        if (sessionStorage.getItem('pinVerified')) {
+          timeLeft--;
+          if (timeLeft <= 0) {
+            fetchCodes();
+            startCountdown();
+          } else {
+            updateCountdownDisplay();
+          }
+        }
+      }, 1000);
+
+      pinDigits.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+          // If the input is a valid digit
+          if (/^[0-9]$/.test(e.target.value)) {
+            // Move focus to next input field if not the last one
+            if (index < pinDigits.length - 1) {
+              pinDigits[index + 1].focus();
+            } 
+            // We'll remove the automatic verification when the last digit is entered
+            // This way the user must explicitly click the verify button
+          }
+        });
+
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && e.target.value === '') {
+            if (index > 0) {
+              pinDigits[index - 1].focus();
+            }
+          }
+          // Add enter key support to verify
+          if (e.key === 'Enter') {
+            verifyPin();
+          }
+        });
+      });
+
+      cancelDeleteBtn.addEventListener('click', () => {
+        confirmModal.style.display = 'none';
+        accountToDelete = null;
+      });
+
+      confirmDeleteBtn.addEventListener('click', () => {
+        if (accountToDelete) {
+          deleteAccount(accountToDelete);
+          confirmModal.style.display = 'none';
+          accountToDelete = null;
+        }
+      });
+
+      verifyPinBtn.addEventListener('click', verifyPin);
+
+      if (showCodesBtn) {
+        showCodesBtn.addEventListener('click', () => {
+          pinModal.style.display = 'flex';
+          pinDigits[0].focus();
+        });
+      }
+    };
+  </script>
+</body>
+
+</html>

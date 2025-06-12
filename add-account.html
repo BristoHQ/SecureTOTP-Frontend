@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2FA Auth - Add Account</title>
+    <!-- QR Scanner library -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+             background-color: #1a1a1a;
+            color: #e5e5e5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+         /* Navbar Styles */
+        .navbar {
+            background: linear-gradient(to right, #2d2d2d, #1e3a8a);
+            padding: 15px 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .navbar .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .nav-btn:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .nav-btn.secondary {
+            background-color: #4b5563;
+        }
+
+        .nav-btn.secondary:hover {
+            background-color: #374151;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-top: 42px;
+            /* max-height: calc(100vh - 40px); Ensure it fits within viewport height */
+            /* overflow-y: auto; Allow internal scrolling if needed, but avoid body scroll */
+        }
+
+        .left-right {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            background: linear-gradient(to right, #2d2d2d, #1e3a8a);
+            padding: 30px;
+            width: 100%;
+             max-width: 800px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            color: #d6d6d6;
+            font-weight: 600;
+            text-align: left;
+            margin-bottom: 5px;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .inputForm {
+            border: 1.5px solid #929292;
+            border-radius: 10px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            transition: border-color 0.2s ease-in-out;
+            margin-bottom: 15px;
+            background: transparent;
+        }
+
+        .inputForm:focus-within {
+            border: 1.5px solid #3b82f6;
+        }
+
+        input[type="text"],
+        select {
+            background: transparent;
+            border: none;
+            width: 340px;
+            font-size: 0.9rem;
+            color: #d6d6d6;
+            padding: 0 10px;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            color: #d6d6d6;
+        }
+
+        select {
+            height: 50px;
+            border-radius: 10px;
+            appearance: none;
+            background: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
+            background-size: 20px;
+        }
+
+        ::placeholder {
+            color: #cccaca;
+            opacity: 1;
+        }
+
+        .qr-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #scan-qr-camera,
+        .qr-options .file-upload-label {
+            width: 100%;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: 1px solid #3b82f6;
+            background-color: #2a2a2a;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #scan-qr-camera:hover,
+        .qr-options .file-upload-label:hover {
+            background-color: #3b82f6;
+            border-color: #2563eb;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        #qr-reader {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #929292;
+        }
+
+        .logo-preview-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .logo-preview-container img {
+            width: 64px;
+            height: 64px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: #ffffff;
+            padding: 5px;
+            border: 1px solid #929292;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .logo-preview-container img:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-options .file-upload-label {
+             width: 100%;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: 1px solid #3b82f6;
+            background-color: #2a2a2a;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-options .file-upload-label:hover {
+            background-color: #3b82f6;
+            border-color: #2563eb;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        button[type="submit"],
+        .btn-secondary {
+            margin: 20px 0 10px 0;
+            background-color: #3b82f6;
+            border: none;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 10px;
+            height: 50px;
+            width: 100%;
+            padding: 0px 25px;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button[type="submit"]:hover,
+        .btn-secondary:hover {
+            background-color: #2563eb;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Add these styles to your existing CSS */
+    .btn-loading {
+        position: relative;
+        pointer-events: none;
+        color: transparent !important;
+    }
+    
+    .btn-loading::after {
+        content: "";
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
+        border: 3px solid transparent;
+        border-top-color: white;
+        border-radius: 50%;
+        animation: button-loading-spinner 1s ease infinite;
+    }
+    
+    @keyframes button-loading-spinner {
+        from { transform: rotate(0turn); }
+        to { transform: rotate(1turn); }
+    }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                max-height: calc(100vh - 30px);
+            }
+
+            .form {
+                padding: 25px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .logo h1 {
+                font-size: 1.8rem;
+            }
+
+            .inputForm,
+            select,
+            #scan-qr-camera,
+            .qr-options .file-upload-label,
+            button[type="submit"]{
+                height: 45px;
+                font-size: 0.9rem;
+            }
+    
+             .btn-secondary {
+                height: 45px;
+                 width: 170px;
+                font-size: 0.9rem;
+            }
+           
+
+            .form-group label {
+                font-size: 0.9rem;
+            }
+
+            .logo-preview-container img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .logo-options .file-upload-label {
+                 height: 45px;
+                font-size: 0.9rem;
+            }
+
+            #qr-reader {
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+                max-height: calc(100vh - 20px);
+            }
+
+            .form {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+
+            .inputForm,
+            select,
+            #scan-qr-camera,
+            .qr-options .file-upload-label,
+            button[type="submit"]
+            {
+                height: 40px;
+               
+                font-size: 0.85rem;
+            }
+             .btn-secondary {
+                height: 40px;
+                width: 170px;
+                font-size: 0.85rem;
+            }
+
+            .form-group label {
+                font-size: 0.85rem;
+            }
+
+            .logo-preview-container img {
+                width: 40px;
+                height: 40px;
+            }
+
+            .logo-options .file-upload-label {
+               height: 40px;
+                font-size: 0.85rem;
+            }
+
+            #qr-reader {
+                max-width: 250px;
+            }
+        }
+
+        
+    .btn-delete {
+      background-color: #4b5563;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.2s;
+      flex: 1;
+    }
+
+     .btn-delete:hover {
+      background-color: #374151;
+      transform: translateY(-2px);
+    }
+
+    .btn-delete {
+      background-color: #e74c3c;
+    }
+    </style>
+</head>
+<body>
+
+     <div class="navbar">
+        <h1>2FA Authenticator</h1>
+        <div class="actions">
+            <a href="dashboard.html" class="nav-btn">Go to Dashboard</a>
+            <a href="add-account.html" class="nav-btn secondary"><i class="fas fa-plus"></i> Profile</a>
+            <a href="pin-setting.html" class="nav-btn secondary" id="settingsBtn"><i class="fas fa-cog"></i> Pin Settings</a>
+            <button id="logout-btn" class="btn-delete">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <form id="add-account-form" class="form">
+           <div class="left-right">
+             <div class="left-card">
+                <div class="form-group">
+                <label for="secret">TOTP Secret</label>
+                <div class="inputForm">
+                    <input type="text" id="secret" placeholder="Enter secret key" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>QR Code</label>
+                <div class="qr-options">
+                    <button type="button" id="scan-qr-camera">Scan with Camera</button>
+                    <input type="file" id="qr-upload" accept="image/*">
+                    <label for="qr-upload" class="file-upload-label">Upload QR Image</label>
+                </div>
+                <div id="qr-reader" style="display: none;"></div>
+            </div>
+            <div class="form-group">
+                <label for="issuer">Issuer</label>
+                <select id="issuer" required>
+                    <option value="" disabled selected>Select issuer</option>
+                    <option value="github">GitHub</option>
+                    <option value="discord">Discord</option>
+                    <option value="google">Google</option>
+                    <option value="microsoft">Microsoft</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="twitter">Twitter</option>
+                    <option value="amazon">Amazon</option>
+                    <option value="custom">Custom</option>
+                </select>
+            </div>
+            </div>
+           <div class="right-card">
+             <div class="form-group">
+                <label for="nickname">Nickname</label>
+                <div class="inputForm">
+                    <input type="text" id="nickname" placeholder="e.g., My GitHub" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Logo</label>
+                <div class="logo-preview-container">
+                    <img id="logo-preview" src="https://img.icons8.com/?size=80&id=21441&format=png" alt="Logo Preview">
+                </div>
+                <div class="logo-options">
+                    <input type="file" id="custom-logo" accept="image/*">
+                    <label for="custom-logo" class="file-upload-label">Upload Custom Logo</label>
+                </div>
+                <input type="hidden" id="logo-data" name="logo-data">
+            </div>
+           </div>
+           </div>
+            <button type="submit">Add Account</button>
+        </form>
+       <!-- <div>
+         <a href="dashboard.html" class="btn-secondary">Go to Dashboard</a>
+       </div> -->
+    </div>
+   <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('add-account-form');
+    const qrUpload = document.getElementById('qr-upload');
+    const scanQrCamera = document.getElementById('scan-qr-camera');
+    const issuerSelect = document.getElementById('issuer');
+    const customLogo = document.getElementById('custom-logo');
+    const logoPreview = document.getElementById('logo-preview');
+    const logoData = document.getElementById('logo-data');
+
+    const defaultLogos = {
+        'github': 'https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png',
+        'google': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png',
+        'discord': 'https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png',
+        'microsoft': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/512px-Microsoft_logo.svg.png',
+        'facebook': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/512px-2021_Facebook_icon.svg.png',
+        'twitter': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Logo_of_Twitter.svg/512px-Logo_of_Twitter.svg.png',
+        'amazon': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/512px-Amazon_logo.svg.png',
+        'custom': 'https://img.icons8.com/?size=80&id=21441&format=png'
+    };
+
+    issuerSelect.addEventListener('change', () => {
+        const selectedIssuer = issuerSelect.value;
+        if (defaultLogos[selectedIssuer]) {
+            logoPreview.src = defaultLogos[selectedIssuer];
+            logoData.value = defaultLogos[selectedIssuer];
+        }
+    });
+
+    customLogo.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                logoPreview.src = event.target.result;
+                logoData.value = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // ✅ Real QR image decoding
+    qrUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, canvas.width, canvas.height);
+                    if (code) {
+                        parseOtpAuthURL(code.data);
+                        alert('QR code scanned successfully!');
+                    } else {
+                        alert('Failed to decode QR code. Please try another image.');
+                    }
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    scanQrCamera.addEventListener('click', () => {
+        const qrReader = document.getElementById('qr-reader');
+        qrReader.style.display = 'block';
+
+        const html5QrCode = new Html5Qrcode("qr-reader");
+        const qrConfig = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            qrConfig,
+            function onScanSuccess(decodedText) {
+                html5QrCode.stop().then(() => {
+                    qrReader.style.display = 'none';
+                    parseOtpAuthURL(decodedText);
+                });
+            },
+            function onScanFailure(error) {
+                console.warn(`QR scanning error: ${error}`);
+            }
+        );
+    });
+
+    function parseOtpAuthURL(url) {
+        try {
+            if (!url.startsWith('otpauth://')) {
+                throw new Error('Invalid OTP URL');
+            }
+
+            const parts = url.split('?');
+            const path = parts[0].replace('otpauth://totp/', '');
+            const params = new URLSearchParams(parts[1]);
+
+            const secret = params.get('secret');
+            const issuer = params.get('issuer') || '';
+            const label = decodeURIComponent(path);
+            let accountName = label.includes(':') ? label.split(':')[1] : label;
+
+            document.getElementById('secret').value = secret;
+            document.getElementById('nickname').value = accountName;
+            const normalizedIssuer = issuer.toLowerCase();
+
+            let matched = false;
+            for (const [key, value] of Object.entries(defaultLogos)) {
+                if (normalizedIssuer.includes(key)) {
+                    document.getElementById('issuer').value = key;
+                    logoPreview.src = value;
+                    logoData.value = value;
+                    matched = true;
+                    break;
+                }
+            }
+
+            if (!matched) {
+                document.getElementById('issuer').value = 'custom';
+                logoPreview.src = defaultLogos.custom;
+                logoData.value = defaultLogos.custom;
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Failed to parse QR code.');
+        }
+    }
+
+      // Logout functionality
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        localStorage.removeItem('authToken');
+        window.location.href = '/login.html';
+      });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = form.querySelector('button[type="submit"]');
+        
+        // Prevent multiple form submissions
+        if (submitBtn.disabled) return;
+        
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            alert('Token missing. Please log in.');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Show loading animation
+        setButtonLoading(submitBtn, true);
+
+        const accountData = {
+            secret: document.getElementById('secret').value.trim().toUpperCase(),
+            issuer: document.getElementById('issuer').value,
+            nickname: document.getElementById('nickname').value,
+            logoUrl: logoData.value
+        };
+
+        try {
+            const response = await fetch('http://localhost:8080/add-account', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(accountData)
+            });
+
+            if (!response.ok) {
+                throw new Error(await response.text());
+            }
+
+            alert('Account added successfully!');
+            window.location.href = 'dashboard.html';
+        } catch (err) {
+            console.error(err);
+            alert('Failed to add account: ' + err.message);
+            // Reset button state if there's an error
+            setButtonLoading(submitBtn, false);
+        }
+    });
+
+    // Helper function to show/hide loading state
+    function setButtonLoading(button, isLoading) {
+        if (isLoading) {
+            button.disabled = true;
+            button.classList.add('btn-loading');
+            button.originalText = button.innerText;
+            button.innerText = '';
+        } else {
+            button.disabled = false;
+            button.classList.remove('btn-loading');
+            if (button.originalText) {
+                button.innerText = button.originalText;
+                button.originalText = null;
+            }
+        }
+    }
+
+    // Also prevent multiple clicks on the scan QR button
+    scanQrCamera.addEventListener('click', (e) => {
+        // Prevent multiple clicks
+        if (scanQrCamera.disabled) return;
+        
+        // Show loading state
+        setButtonLoading(scanQrCamera, true);
+        
+        const qrReader = document.getElementById('qr-reader');
+        qrReader.style.display = 'block';
+
+        const html5QrCode = new Html5Qrcode("qr-reader");
+        const qrConfig = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            qrConfig,
+            function onScanSuccess(decodedText) {
+                html5QrCode.stop().then(() => {
+                    qrReader.style.display = 'none';
+                    parseOtpAuthURL(decodedText);
+                    // Reset button state after successful scan
+                    setButtonLoading(scanQrCamera, false);
+                });
+            },
+            function onScanFailure(error) {
+                console.warn(`QR scanning error: ${error}`);
+                // Don't reset here to prevent multiple camera activations
+            }
+        ).catch(err => {
+            console.error("Starting QR scanner failed", err);
+            // Reset button if starting the scanner fails
+            setButtonLoading(scanQrCamera, false);
+        });
+    });
+    
+    // Add loading indicator for logout button
+    document.getElementById('logout-btn').addEventListener('click', (e) => {
+        const logoutBtn = e.target;
+        setButtonLoading(logoutBtn, true);
+        setTimeout(() => {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login.html';
+        }, 500); // Small delay to show animation
+    });
+});
+</script>
+
+</body>
+</html>

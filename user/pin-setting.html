@@ -652,7 +652,7 @@
                 setButtonLoading(logoutBtn, true);
                 setTimeout(() => {
                     localStorage.removeItem('authToken');
-                    window.location.href = 'login.html';
+                    window.location.href = 'auth/login.html';
                 }, 500);
             });
             

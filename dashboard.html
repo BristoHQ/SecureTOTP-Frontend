@@ -974,7 +974,7 @@
     async function fetchCodes() {
       const token = localStorage.getItem('authToken');
       if (!token) {
-        window.location.href = 'login.html';
+        window.location.href = 'auth/login.html';
         return;
       }
 
@@ -1136,7 +1136,7 @@ function setButtonLoading(button, isLoading) {
     async function deleteAccount(accountInfo) {
       const token = localStorage.getItem('authToken');
       if (!token) {
-        window.location.href = 'login.html';
+        window.location.href = 'auth/login.html';
         return;
       }
 
@@ -1257,7 +1257,7 @@ function setButtonLoading(button, isLoading) {
 
       const token = localStorage.getItem('authToken');
       if (!token) {
-        window.location.href = 'login.html';
+        window.location.href = 'auth/login.html';
         return;
       }
 
@@ -1296,7 +1296,7 @@ function setButtonLoading(button, isLoading) {
     async function checkPinStatus() {
       const token = localStorage.getItem('authToken');
       if (!token) {
-        window.location.href = 'login.html';
+        window.location.href = 'auth/login.html';
         return;
       }
 

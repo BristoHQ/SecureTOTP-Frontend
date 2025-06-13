@@ -171,7 +171,7 @@
         input[type="text"]:focus,
         select:focus {
             outline: none;
-            color: #d6d6d6;
+            color: #ffffff;
         }
 
         select {
@@ -180,6 +180,7 @@
             appearance: none;
             background: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
             background-size: 20px;
+            background: #2a2a2a;
         }
 
         ::placeholder {
@@ -471,9 +472,9 @@
      <div class="navbar">
         <h1>2FA Authenticator</h1>
         <div class="actions">
-            <a href="dashboard.html" class="nav-btn">Go to Dashboard</a>
-            <a href="user/profile.html" class="nav-btn secondary"><i class="fas fa-user"></i> Profile</a>
-            <a href="user/pin-setting.html" class="nav-btn secondary" id="settingsBtn"><i class="fas fa-cog"></i> Pin Settings</a>
+            <a href="/dashboard.html" class="nav-btn">Go to Dashboard</a>
+            <a href="/user/profile.html" class="nav-btn secondary"><i class="fas fa-user"></i> Profile</a>
+            <a href="/user/pin-setting.html" class="nav-btn secondary" id="settingsBtn"><i class="fas fa-cog"></i> Pin Settings</a>
             <button id="logout-btn" class="btn-delete">Logout</button>
         </div>
     </div>
@@ -536,7 +537,7 @@
             <button type="submit">Add Account</button>
         </form>
        <!-- <div>
-         <a href="dashboard.html" class="btn-secondary">Go to Dashboard</a>
+         <a href="/dashboard.html" class="btn-secondary">Go to Dashboard</a>
        </div> -->
     </div>
    <script>
@@ -674,7 +675,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Logout functionality
       document.getElementById('logout-btn').addEventListener('click', () => {
         localStorage.removeItem('authToken');
-        window.location.href = 'auth/login.html';
+        window.location.href = '/auth/login.html';
       });
 
     form.addEventListener('submit', async (e) => {
@@ -687,7 +688,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const token = localStorage.getItem('authToken');
         if (!token) {
             alert('Token missing. Please log in.');
-            window.location.href = 'auth/login.html';
+            window.location.href = '/auth/login.html';
             return;
         }
 
@@ -716,7 +717,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             alert('Account added successfully!');
-            window.location.href = 'dashboard.html';
+            window.location.href = '/dashboard.html';
         } catch (err) {
             console.error(err);
             alert('Failed to add account: ' + err.message);
@@ -784,7 +785,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setButtonLoading(logoutBtn, true);
         setTimeout(() => {
             localStorage.removeItem('authToken');
-            window.location.href = 'auth/login.html';
+            window.location.href = '/auth/login.html';
         }, 500); // Small delay to show animation
     });
 });

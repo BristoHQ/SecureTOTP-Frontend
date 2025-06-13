@@ -476,9 +476,9 @@
             <span>SecureTOTP</span>
         </div>
         <div class="actions">
-            <a href="../dashboard.html" class="nav-btn"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-            <a href="../add-account.html" class="nav-btn secondary"><i class="fas fa-plus"></i> Add Account</a>
-            <a href="../user/pin-setting.html" class="nav-btn secondary" id="settingsBtn"><i class="fas fa-cog"></i> Pin
+            <a href="/dashboard.html" class="nav-btn"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="/add-account.html" class="nav-btn secondary"><i class="fas fa-plus"></i> Add Account</a>
+            <a href="/user/pin-setting.html" class="nav-btn secondary" id="settingsBtn"><i class="fas fa-cog"></i> Pin
                 Settings</a>
             <button id="logout-btn" class="btn-delete">Logout</button>
         </div>
@@ -566,14 +566,14 @@
         // Check authentication 
         const token = localStorage.getItem('authToken');
         if (!token) {
-            window.location.href = '../auth/login.html';
+            window.location.href = '/auth/login.html';
            
         }
 
         // Logout functionality
         document.getElementById('logout-btn').addEventListener('click', () => {
             localStorage.removeItem('authToken');
-            window.location.href = '../auth/login.html';
+            window.location.href = '/auth/login.html';
         });
 
         // Handle agreement checkbox

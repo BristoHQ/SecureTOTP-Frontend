@@ -221,7 +221,7 @@
       setButtonLoading(sendOtpBtn, true);
       
       try {
-        const res = await fetch('https://ample-expert-mayfly.ngrok-free.app/api/v1/auth/send-otp', {
+        const res = await fetch('https://ample-expert-mayfly.ngrok-free.app/api/v1/auth/resend-otp', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email })
@@ -275,7 +275,7 @@
 
         if (res.ok) {
           msg.style.color = "green";
-          setTimeout(() => window.location.href = 'dashboard.html', 1500);
+          setTimeout(() => window.location.href = '/dashboard.html', 1500);
         } else {
           msg.style.color = "red";
           setButtonLoading(verifyBtn, false);

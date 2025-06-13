@@ -392,7 +392,7 @@
                 <button id="loginBtn" class="button-submit" disabled>Login with ELP</button>
                 <div class="message" id="message"></div>
 
-                <a href="../auth/login.html" class="back-to-login">Back to normal login</a>
+                <a href="/auth/login.html" class="back-to-login">Back to normal login</a>
             </div>
         </div>
     </div>
@@ -524,7 +524,7 @@
 
                     // Redirect after a short delay
                     setTimeout(() => {
-                        window.location.href = '../dashboard.html';
+                        window.location.href = '/dashboard.html';
                     }, 1500);
                 } else if (response.status === 206) {
                     // Partial success - ELP valid but user not found

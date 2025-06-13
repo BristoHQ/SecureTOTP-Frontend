@@ -434,13 +434,13 @@
             <span>SecureTOTP</span>
         </div>
         <div class="actions">
-            <a href="dashboard.html" class="nav-btn"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/dashboard.html" class="nav-btn"><i class="fas fa-home"></i> Dashboard</a>
             <button id="logout-btn" class="btn-delete">Logout</button>
         </div>
     </div>
 
     <div class="header">
-        <a href="../dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        <a href="/dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
         <h2>PIN Settings</h2>
     </div>
 
@@ -481,7 +481,7 @@
                 </p>
             </div>
             
-            <a href="dashboard.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+            <a href="/dashboard.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
         </div>
     </div>
     
@@ -489,7 +489,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('authToken');
             if (!token) {
-                window.location.href = '../auth/login.html';
+                window.location.href = '/auth/login.html';
                 return;
             }
             
@@ -639,7 +639,7 @@
                         
                         showAlert(successAlert, 'All data has been reset');
                         setTimeout(() => {
-                            window.location.href = 'dashboard.html';
+                            window.location.href = '/dashboard.html';
                         }, 1500);
                     }).finally(() => {
                         setButtonLoading(resetBtn, false);
@@ -652,7 +652,7 @@
                 setButtonLoading(logoutBtn, true);
                 setTimeout(() => {
                     localStorage.removeItem('authToken');
-                    window.location.href = 'auth/login.html';
+                    window.location.href = '/auth/login.html';
                 }, 500);
             });
             

@@ -483,8 +483,8 @@
           <h1>SecureTOTP</h1>
         </div>
         <div class="header-actions">
-          <a href="edit-profile.html" class="btn secondary">Edit Profile</a>
-          <a href="../dashboard.html" class="btn secondary">Dashboard</a>
+          <a href="/edit-profile.html" class="btn secondary">Edit Profile</a>
+          <a href="/dashboard.html" class="btn secondary">Dashboard</a>
           <button id="logout-btn" class="btn danger">Logout</button>
         </div>
       </div>
@@ -495,7 +495,7 @@
           </div>
         </div>
         <!-- <div class="back-button">
-          <a href="dashboard.html" class="btn secondary">Back to Dashboard</a>
+          <a href="/dashboard.html" class="btn secondary">Back to Dashboard</a>
         </div> -->
       </div>
     </div>
@@ -507,7 +507,7 @@
       const token = localStorage.getItem('authToken');
 
       if (!token) {
-        window.location.href = '../auth/login.html';
+        window.location.href = '/auth/login.html';
         return;
       }
 
@@ -658,7 +658,7 @@
         setTimeout(() => {
           localStorage.removeItem('authToken');
           localStorage.removeItem('userData');
-          window.location.href = '../auth/login.html';
+          window.location.href = '/auth/login.html';
         }, 500);
       });
     });

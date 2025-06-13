@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profile - SecureTOTP</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg height='32' viewBox='0 0 32 32' width='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cg id='Layer_3' data-name='Layer 3'%3E%3Cpath fill='white' d='m30.853 13.87a15 15 0 0 0 -29.729 4.082 15.1 15.1 0 0 0 12.876 12.918 15.6 15.6 0 0 0 2.016.13 14.85 14.85 0 0 0 7.715-2.145 1 1 0 1 0 -1.031-1.711 13.007 13.007 0 1 1 5.458-6.529 2.149 2.149 0 0 1 -4.158-.759v-10.856a1 1 0 0 0 -2 0v1.726a8 8 0 1 0 .2 10.325 4.135 4.135 0 0 0 7.83.274 15.2 15.2 0 0 0 .823-7.455zm-14.853 8.13a6 6 0 1 1 6-6 6.006 6.006 0 0 1 -6 6z'%3E%3C/path%3E%3C/g%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg height='32' viewBox='0 0 32 32' width='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cg id='Layer_3' data-name='Layer 3'%3E%3Cpath fill='white' d='m30.853 13.87a15 15 0 0 0 -29.729 4.082 15.1 15.1 0 0 0 12.876 12.918 15.6 15.6 0 0 0 2.016.13 14.85 14.85 0 0 0 7.715-2.145 1 1 0 1 0 -1.031-1.711 13.007 13.007 0 1 1 5.458-6.529 2.149 2.149 0 0 1 -4.158-.759v-10.856a1 1 0 0 0 -2 0v1.726a8 8 0 1 0 .2 10.325 4.135 4.135 0 0 0 7.83.274 15.2 15.2 0 0 0 .823-7.455zm-14.853 8.13a6 6 0 1 1 6-6 6.006 6.006 0 0 1 -6 6z'%3E%3C/path%3E%3C/g%3E%3C/svg%3E">
   <style>
     * {
       margin: 0;
@@ -66,16 +68,40 @@
       animation: keyframes-blink 0.6s alternate infinite linear;
     }
 
-    .loader span:nth-child(1) { animation-delay: 0ms; }
-    .loader span:nth-child(2) { animation-delay: 60ms; }
-    .loader span:nth-child(3) { animation-delay: 120ms; }
-    .loader span:nth-child(4) { animation-delay: 180ms; }
-    .loader span:nth-child(5) { animation-delay: 120ms; }
-    .loader span:nth-child(6) { animation-delay: 60ms; }
+    .loader span:nth-child(1) {
+      animation-delay: 0ms;
+    }
+
+    .loader span:nth-child(2) {
+      animation-delay: 60ms;
+    }
+
+    .loader span:nth-child(3) {
+      animation-delay: 120ms;
+    }
+
+    .loader span:nth-child(4) {
+      animation-delay: 180ms;
+    }
+
+    .loader span:nth-child(5) {
+      animation-delay: 120ms;
+    }
+
+    .loader span:nth-child(6) {
+      animation-delay: 60ms;
+    }
 
     @keyframes keyframes-blink {
-      0% { opacity: 0.3; transform: scale(0.5) rotate(5deg); }
-      50% { opacity: 1; transform: scale(1); }
+      0% {
+        opacity: 0.3;
+        transform: scale(0.5) rotate(5deg);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     .loader-container .company-name {
@@ -88,8 +114,13 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0.5; }
-      to { opacity: 1; }
+      from {
+        opacity: 0.5;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     .main-content {
@@ -127,8 +158,8 @@
       gap: 15px;
     }
 
-    .logo{
-         display: flex;
+    .logo {
+      display: flex;
       align-items: center;
     }
 
@@ -138,7 +169,8 @@
       font-weight: 700;
       letter-spacing: 1px;
     }
-     .logo img {
+
+    .logo img {
       width: 40px;
       height: 40px;
       margin-right: 10px;
@@ -284,7 +316,7 @@
       color: #a0a0a0;
       font-style: italic;
     }
-    
+
     .error-message {
       background: rgba(239, 68, 68, 0.2);
       color: #ef4444;
@@ -293,11 +325,11 @@
       text-align: center;
       margin: 10px 0;
     }
-    
+
     .error-message i {
       margin-right: 8px;
     }
-    
+
     .avatar-container {
       display: flex;
       justify-content: center;
@@ -327,8 +359,13 @@
     }
 
     @keyframes button-loading-spinner {
-      from { transform: rotate(0turn); }
-      to { transform: rotate(1turn); }
+      from {
+        transform: rotate(0turn);
+      }
+
+      to {
+        transform: rotate(1turn);
+      }
     }
 
     .back-button {
@@ -342,7 +379,7 @@
         padding: 25px;
         margin: 0 15px;
       }
-      
+
       .info-grid {
         grid-template-columns: 1fr 1fr;
       }
@@ -391,7 +428,7 @@
       .profile-info {
         padding: 15px;
       }
-      
+
       .btn {
         font-size: 0.85rem;
         padding: 8px 12px;
@@ -424,6 +461,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="loader-container">
     <div class="loader">
@@ -441,9 +479,9 @@
     <div class="container">
       <div class="header-bar">
         <div class="logo">
-      <img src="https://static.cdnlogo.com/logos/m/41/microsoft-authenticator.svg" alt="SecureTOTP Logo">
-      <h1>SecureTOTP</h1>
-    </div>
+          <img src="https://static.cdnlogo.com/logos/m/41/microsoft-authenticator.svg" alt="SecureTOTP Logo">
+          <h1>SecureTOTP</h1>
+        </div>
         <div class="header-actions">
           <a href="edit-profile.html" class="btn secondary">Edit Profile</a>
           <a href="../dashboard.html" class="btn secondary">Dashboard</a>
@@ -467,37 +505,45 @@
     async function loadProfile() {
       const profileInfo = document.getElementById('profile-info');
       const token = localStorage.getItem('authToken');
-      
+
       if (!token) {
         window.location.href = '../auth/login.html';
         return;
       }
-      
+
       try {
         // Show loading state
         profileInfo.innerHTML = '<div class="loading-message">Loading profile data...</div>';
-        
-        const response = await fetch('http://localhost:9000/api/v1/users/me', {
+
+        // Log token for debugging (don't show full token in production)
+        console.log("Using token (first 10 chars):", token.substring(0, 10) + "...");
+
+        // Try the fetch with more debugging
+        const response = await fetch('https://ample-expert-mayfly.ngrok-free.app/api/v1/users/me', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true'          // ✅ Required
+            // 'User-Agent': 'CustomBrowser/1.0'  
           }
         });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch profile data');
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          const text = await response.text();  // fallback
+          console.error("Received non-JSON response:", text);
+          throw new Error("Expected JSON, got HTML");
         }
-        
         const userData = await response.json();
-        
+
         console.log("User data:", userData); // Add this line to debug the data structure
-        
+
         // Format the roles string - handle potential null values or empty arrays
-        const roles = userData.roles && Array.isArray(userData.roles) && userData.roles.length > 0 
-          ? userData.roles.map(role => role.roleName || 'User').join(', ') 
+        const roles = userData.roles && Array.isArray(userData.roles) && userData.roles.length > 0
+          ? userData.roles.map(role => role.roleName || 'User').join(', ')
           : 'User';
-        
+
         // Format the date with error handling
         let createdDate = 'Not available';
         if (userData.accountCreatedAt) {
@@ -507,41 +553,41 @@
             console.error("Error formatting date:", e);
           }
         }
-        
+
         // If user has an avatar, display it with fallback
         const avatarUrl = userData.userAvatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.fullName || userData.username || 'User') + '&background=random';
         const avatarContainer = document.createElement('div');
         avatarContainer.classList.add('avatar-container');
         avatarContainer.innerHTML = `<img src="${avatarUrl}" alt="${userData.fullName || 'User'}" class="avatar">`;
-        
+
         // Insert at the beginning of profile-info
         const profileInfoDiv = document.querySelector('.profile-info');
         profileInfoDiv.insertBefore(avatarContainer, profileInfoDiv.firstChild);
-        
+
         // Clean up email for display
         let email = userData.email || 'Not set';
         if (email.includes('@') && email.includes('=@')) {
           // Fix the malformed email format from the API
           email = email.replace(/.*=@/, '');
         }
-        
+
         // Handle the verified status - improved check to handle all possible formats
         let isVerified = false;
-        
+
         // Debug the value to check its actual type and value
         console.log("Verification status type:", typeof userData.verified);
         console.log("Verification status value:", userData.verified);
-        
+
         // More robust check that handles different data formats
-        if (userData.verified === true || 
-            userData.verified === "true" || 
-            userData.verified === 1 || 
-            userData.verified === "1" || 
-            userData.verified === "yes" ||
-            String(userData.verified).toLowerCase() === "true") {
+        if (userData.verified === true ||
+          userData.verified === "true" ||
+          userData.verified === 1 ||
+          userData.verified === "1" ||
+          userData.verified === "yes" ||
+          String(userData.verified).toLowerCase() === "true") {
           isVerified = true;
         }
-        
+
         // Build the profile HTML
         profileInfo.innerHTML = `
           <div class="info-item">
@@ -577,7 +623,7 @@
             <span class="value">${createdDate}</span>
           </div>
         `;
-        
+
       } catch (error) {
         console.error('Error fetching profile:', error);
         profileInfo.innerHTML = `
@@ -603,11 +649,11 @@
       // Logout functionality with loading state
       document.getElementById('logout-btn').addEventListener('click', () => {
         const logoutBtn = document.getElementById('logout-btn');
-        
+
         // Add loading state
         logoutBtn.disabled = true;
         logoutBtn.classList.add('btn-loading');
-        
+
         // Small timeout to show loading state
         setTimeout(() => {
           localStorage.removeItem('authToken');
@@ -618,4 +664,5 @@
     });
   </script>
 </body>
+
 </html>

@@ -567,7 +567,7 @@
         const token = localStorage.getItem('authToken');
         if (!token) {
             window.location.href = '../auth/login.html';
-            return;
+           
         }
 
         // Logout functionality
@@ -581,10 +581,13 @@
             generateBtn.disabled = !agreeCheckbox.checked;
         });
 
+        // https://ample-expert-mayfly.ngrok-free.app/
+        // https://ample-expert-mayfly.ngrok-free.app/
+        // 
         // Load user profile data
         async function loadUserProfile() {
             try {
-                const response = await fetch('http://localhost:9000/api/v1/users/me', {
+                const response = await fetch('https://ample-expert-mayfly.ngrok-free.app/api/v1/users/me', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -630,7 +633,7 @@
 
             try {
                 // Correct the API endpoint to match your backend
-                const response = await fetch('http://localhost:8080/api/v1/elp/generate', {
+                const response = await fetch('https://twofactor-securetotp.loca.lt/api/v1/elp/generate', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`

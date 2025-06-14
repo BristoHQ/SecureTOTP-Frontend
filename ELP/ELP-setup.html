@@ -581,13 +581,13 @@
             generateBtn.disabled = !agreeCheckbox.checked;
         });
 
-        // https://ample-expert-mayfly.ngrok-free.app/
-        // https://ample-expert-mayfly.ngrok-free.app/
+        // https://securetotp-backendauth.onrender.com/
+        // https://securetotp-backendauth.onrender.com/
         // 
         // Load user profile data
         async function loadUserProfile() {
             try {
-                const response = await fetch('https://ample-expert-mayfly.ngrok-free.app/api/v1/users/me', {
+                const response = await fetch('https://securetotp-backendauth.onrender.com/api/v1/users/me', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,

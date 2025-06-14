@@ -519,7 +519,7 @@
         console.log("Using token (first 10 chars):", token.substring(0, 10) + "...");
 
         // Try the fetch with more debugging
-        const response = await fetch('https://ample-expert-mayfly.ngrok-free.app/api/v1/users/me', {
+        const response = await fetch('https://securetotp-backendauth.onrender.com/api/v1/users/me', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

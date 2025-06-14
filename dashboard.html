@@ -1020,6 +1020,8 @@
         existingHideBtn.remove();
       }
 
+      // console.log(pinVerified);
+
       if (!pinVerified) {
         codesList.innerHTML = `
           <div class="locked-state">
@@ -1030,6 +1032,7 @@
           </div>
         `;
         document.getElementById('showCodesBtn').addEventListener('click', () => {
+          console.log()
           pinModal.style.display = 'flex';
           pinDigits[0].focus();
         });
@@ -1310,9 +1313,10 @@ function setButtonLoading(button, isLoading) {
         });
 
         const data = await response.json();
-        if(data.error === "User not found"){
+        if(data.error === "Pin not found"){
 sessionStorage.setItem('pinVerified', 'true');
           pinModal.style.display = 'none';
+          // showToast('Pin not Created Yet', false);
           fetchCodes();
         }
         if (data.pin === "" || data.pin === null) {
@@ -1325,7 +1329,7 @@ sessionStorage.setItem('pinVerified', 'true');
         }
       } catch (error) {
         console.error('Error getting PIN:', error);
-        showToast('Error checking PIN status', true);
+        showToast('Error checking PIN status11', true);
         updateCodesDisplay();
       }
     }

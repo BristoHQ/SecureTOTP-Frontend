@@ -979,7 +979,7 @@
       }
 
       try {
-        const response = await fetch('https://twofactor-securetotp.loca.lt/current-codes', {
+        const response = await fetch('https://securetotp-service.onrender.com/current-codes', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -1148,7 +1148,7 @@ function setButtonLoading(button, isLoading) {
 
       try {
         const response = await fetch(
-          `https://twofactor-securetotp.loca.lt/account/${encodeURIComponent(accountInfo.issuer)}/${encodeURIComponent(accountInfo.nickname)}`,
+          `https://securetotp-service.onrender.com/account/${encodeURIComponent(accountInfo.issuer)}/${encodeURIComponent(accountInfo.nickname)}`,
           {
             method: 'DELETE',
             headers: {
@@ -1265,7 +1265,7 @@ function setButtonLoading(button, isLoading) {
       }
 
       try {
-        const response = await fetch('https://twofactor-securetotp.loca.lt/verify-pin', {
+        const response = await fetch('https://securetotp-service.onrender.com/verify-pin', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1304,7 +1304,7 @@ function setButtonLoading(button, isLoading) {
       }
 
       try {
-        const response = await fetch('https://twofactor-securetotp.loca.lt/get-pin', {
+        const response = await fetch('https://securetotp-service.onrender.com/get-pin', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
